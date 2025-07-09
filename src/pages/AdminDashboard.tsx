@@ -11,8 +11,6 @@ import { useRestaurantSubmissions } from "@/hooks/useRestaurantSubmissions";
 
 const statusColors = {
   submitted: "bg-blue-100 text-blue-800",
-  "in-review": "bg-yellow-100 text-yellow-800",
-  generated: "bg-green-100 text-green-800",
   live: "bg-purple-100 text-purple-800"
 };
 
@@ -47,7 +45,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Submissions</CardTitle>
@@ -58,7 +56,7 @@ export default function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">New Submissions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -68,21 +66,11 @@ export default function AdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">In Review</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Live Sites</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {submissions.filter(s => s.status === "in-review").length}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Generated</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {submissions.filter(s => s.status === "generated").length}
+                {submissions.filter(s => s.status === "live").length}
               </div>
             </CardContent>
           </Card>
@@ -105,10 +93,8 @@ export default function AdminDashboard() {
             className="px-3 py-2 border border-border rounded-md bg-background"
           >
             <option value="all">All Statuses</option>
-            <option value="submitted">Submitted</option>
-            <option value="in-review">In Review</option>
-            <option value="generated">Generated</option>
-            <option value="live">Live</option>
+            <option value="submitted">New Submissions</option>
+            <option value="live">Live Sites</option>
           </select>
         </div>
 
@@ -153,18 +139,10 @@ export default function AdminDashboard() {
                       {submission.status === "submitted" && (
                         <Button 
                           size="sm"
-                          onClick={() => updateSubmissionStatus(submission.id, "in-review")}
+                          variant="outline"
+                          onClick={() => updateSubmissionStatus(submission.id, "live")}
                         >
-                          Start Review
-                        </Button>
-                      )}
-                      {submission.status === "in-review" && (
-                        <Button 
-                          size="sm"
-                          onClick={() => updateSubmissionStatus(submission.id, "generated")}
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Generate Site
+                          Mark as Live
                         </Button>
                       )}
                     </div>

@@ -7,11 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { downloadSubmissionJson } from "@/utils/downloadSubmissionJson";
 
 const statusColors = {
   submitted: "bg-blue-100 text-blue-800",
-  "in-review": "bg-yellow-100 text-yellow-800",
-  generated: "bg-green-100 text-green-800",
   live: "bg-purple-100 text-purple-800"
 };
 
@@ -94,9 +93,43 @@ export default function SubmissionDetail() {
     );
   }
 
-  const handleGenerateSite = () => {
-    console.log("Generating site for:", submission.restaurant_name);
-    // Update status to "generated" and trigger site creation
+  const handleDownloadJson = async () => {
+    try {
+      await downloadSubmissionJson(submission.id);
+      toast({
+        title: "JSON Downloaded",
+        description: "Submission data exported successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Failed to download submission data.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleMarkAsLive = async () => {
+    try {
+      const { error } = await supabase
+        .from('restaurant_submissions')
+        .update({ status: 'live' })
+        .eq('id', submission.id);
+
+      if (error) throw error;
+      
+      setSubmission({ ...submission, status: 'live' });
+      toast({
+        title: "Status Updated",
+        description: "Submission marked as live.",
+      });
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update submission status.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -116,11 +149,15 @@ export default function SubmissionDetail() {
           </div>
           <div className="flex items-center space-x-3">
             <Badge className={statusColors[submission.status as keyof typeof statusColors]}>
-              {submission.status.replace("-", " ")}
+              {submission.status}
             </Badge>
+            <Button variant="outline" onClick={handleDownloadJson}>
+              <Download className="w-4 h-4 mr-2" />
+              Download JSON
+            </Button>
             {submission.status === "submitted" && (
-              <Button onClick={handleGenerateSite}>
-                Generate Site
+              <Button onClick={handleMarkAsLive}>
+                Mark as Live
               </Button>
             )}
           </div>
