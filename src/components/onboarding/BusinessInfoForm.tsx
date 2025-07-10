@@ -7,6 +7,7 @@ interface BusinessInfoData {
   email: string;
   phone: string;
   website: string;
+  onlineOrderingUrl: string;
 }
 
 interface BusinessInfoFormProps {
@@ -79,20 +80,37 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
           />
         </div>
 
-        <div className="md:col-span-2">
+        <div>
           <Label htmlFor="website" className="text-base font-medium">
-            Current Website or Ordering Link
+            Current Website
           </Label>
           <Input
             id="website"
             type="url"
-            placeholder="https://yourrestaurant.com or ordering platform link"
+            placeholder="https://yourrestaurant.com"
             value={data.website}
             onChange={(e) => updateField('website', e.target.value)}
             className="mt-2"
           />
           <p className="text-sm text-muted-foreground mt-1">
-            Include your current website, online ordering platform, or delivery app profile
+            Your restaurant's main website
+          </p>
+        </div>
+
+        <div>
+          <Label htmlFor="onlineOrderingUrl" className="text-base font-medium">
+            Online Ordering Platform URL *
+          </Label>
+          <Input
+            id="onlineOrderingUrl"
+            type="url"
+            placeholder="https://your-ordering-platform.com/restaurant"
+            value={data.onlineOrderingUrl}
+            onChange={(e) => updateField('onlineOrderingUrl', e.target.value)}
+            className="mt-2"
+          />
+          <p className="text-sm text-muted-foreground mt-1">
+            This URL will be used for all "Order Now" and "View Menu" buttons on your site
           </p>
         </div>
       </div>

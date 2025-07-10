@@ -38,6 +38,7 @@ export const downloadSubmissionJson = async (submissionId: string) => {
         email: submission.email,
         phone: submission.phone,
         website: submission.website,
+        online_ordering_url: submission.online_ordering_url,
         founded_year: submission.founded_year,
         story: submission.story,
         owner_quote: submission.owner_quote,
@@ -70,9 +71,14 @@ export const downloadSubmissionJson = async (submissionId: string) => {
         display_order: photo.display_order
       })) || [],
       additional_comments: submission.comments,
+      integration_instructions: {
+        ordering_platform: "Use restaurant.online_ordering_url for all 'Order Now' and 'View Menu' buttons",
+        menu_display: "Use restaurant.menu_pdf_url for downloadable menu links",
+        note: "The online_ordering_url connects to your unified ordering platform backend"
+      },
       export_metadata: {
         exported_at: new Date().toISOString(),
-        export_version: "1.0"
+        export_version: "1.1"
       }
     };
 

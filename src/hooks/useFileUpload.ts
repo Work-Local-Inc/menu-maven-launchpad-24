@@ -30,10 +30,19 @@ export const useFileUpload = () => {
 
   const uploadImage = (file: File, path?: string) => uploadFile(file, 'restaurant-images', path);
   const uploadPDF = (file: File, path?: string) => uploadFile(file, 'restaurant-pdfs', path);
+  const uploadMenuFile = (file: File, path?: string) => {
+    // For menu files, check if it's an image or PDF and upload to appropriate bucket
+    if (file.type.startsWith('image/')) {
+      return uploadFile(file, 'restaurant-images', path);
+    } else {
+      return uploadFile(file, 'restaurant-pdfs', path);
+    }
+  };
 
   return {
     uploadImage,
     uploadPDF,
+    uploadMenuFile,
     uploading
   };
 };

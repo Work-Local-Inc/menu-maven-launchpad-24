@@ -22,6 +22,7 @@ export interface RestaurantData {
     email: string;
     phone: string;
     website: string;
+    onlineOrderingUrl: string;
   };
   about: {
     foundedYear: string;
@@ -56,6 +57,7 @@ const initialData: RestaurantData = {
     email: "",
     phone: "",
     website: "",
+    onlineOrderingUrl: "",
   },
   about: {
     foundedYear: "",
@@ -95,7 +97,7 @@ export default function RestaurantOnboarding() {
   const [formData, setFormData] = useState<RestaurantData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { uploadImage, uploadPDF, uploading } = useFileUpload();
+  const { uploadImage, uploadPDF, uploadMenuFile, uploading } = useFileUpload();
 
   const updateFormData = (section: keyof RestaurantData, data: any) => {
     setFormData(prev => ({
@@ -143,9 +145,9 @@ export default function RestaurantOnboarding() {
         aboutImageUrl = await uploadImage(formData.about.aboutImage, `about/${Date.now()}-about`);
       }
 
-      // Upload menu PDF if exists
+      // Upload menu file if exists (PDF or JPG)
       if (formData.menuPdf) {
-        menuPdfUrl = await uploadPDF(formData.menuPdf, `menus/${Date.now()}-menu`);
+        menuPdfUrl = await uploadMenuFile(formData.menuPdf, `menus/${Date.now()}-menu`);
       }
 
       // Upload restaurant photos
@@ -171,6 +173,7 @@ export default function RestaurantOnboarding() {
           email: formData.businessInfo.email,
           phone: formData.businessInfo.phone,
           website: formData.businessInfo.website,
+          online_ordering_url: formData.businessInfo.onlineOrderingUrl,
           founded_year: formData.about.foundedYear,
           story: formData.about.story,
           owner_quote: formData.about.ownerQuote,

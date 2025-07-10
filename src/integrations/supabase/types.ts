@@ -308,6 +308,7 @@ export type Database = {
           id: string
           instagram: string | null
           menu_pdf_url: string | null
+          online_ordering_url: string | null
           owner_quote: string | null
           phone: string | null
           restaurant_name: string
@@ -332,6 +333,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           menu_pdf_url?: string | null
+          online_ordering_url?: string | null
           owner_quote?: string | null
           phone?: string | null
           restaurant_name: string
@@ -356,6 +358,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           menu_pdf_url?: string | null
+          online_ordering_url?: string | null
           owner_quote?: string | null
           phone?: string | null
           restaurant_name?: string

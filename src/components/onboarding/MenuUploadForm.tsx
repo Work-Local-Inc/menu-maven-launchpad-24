@@ -13,7 +13,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
+    if (file && (file.type === 'application/pdf' || file.type === 'image/jpeg' || file.type === 'image/jpg')) {
       onChange(file);
     }
   };
@@ -35,7 +35,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
 
       <div className="max-w-md mx-auto">
         <Label className="text-base font-medium">
-          Menu PDF *
+          Menu File *
         </Label>
         
         {!data ? (
@@ -43,7 +43,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
             <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Upload Your Menu</h3>
             <p className="text-muted-foreground mb-4">
-              Select your menu PDF file
+              Select your menu file (PDF or JPG)
             </p>
             <Button
               type="button"
@@ -51,10 +51,10 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="w-4 h-4 mr-2" />
-              Choose PDF File
+              Choose Menu File
             </Button>
             <p className="text-xs text-muted-foreground mt-3">
-              PDF files only. Max size: 10MB
+              PDF or JPG files only. Max size: 10MB
             </p>
           </div>
         ) : (
@@ -85,7 +85,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf"
+          accept=".pdf,.jpg,.jpeg"
           onChange={handleFileSelect}
           className="hidden"
         />
