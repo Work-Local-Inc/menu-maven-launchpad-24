@@ -44,6 +44,7 @@ export const downloadSubmissionJson = async (submissionId: string) => {
         id: submission.id,
         name: submission.restaurant_name,
         logo_url: submission.logo_url,
+        hero_image_url: submission.hero_image_url,
         address: submission.address,
         email: submission.email,
         phone: submission.phone,
@@ -90,6 +91,7 @@ export const downloadSubmissionJson = async (submissionId: string) => {
       additional_comments: submission.comments,
       integration_instructions: {
         branding: "Use restaurant.logo_url for brand logo placement throughout the site",
+        hero_image: "Use restaurant.hero_image_url as a banner/header image on your homepage for visual impact",
         ordering_platform: "Use restaurant.online_ordering_url for all 'Order Now' and 'View Menu' buttons",
         menu_display: "Use restaurant.menu_pdf_url for downloadable menu links",
         deals_promotion: "Feature deals prominently on homepage and dedicated deals page",

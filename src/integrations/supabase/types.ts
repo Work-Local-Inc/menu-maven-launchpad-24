@@ -334,6 +334,7 @@ export type Database = {
           facebook: string | null
           founded_year: string | null
           generated_site_url: string | null
+          hero_image_url: string | null
           hours: string
           id: string
           instagram: string | null
@@ -360,6 +361,7 @@ export type Database = {
           facebook?: string | null
           founded_year?: string | null
           generated_site_url?: string | null
+          hero_image_url?: string | null
           hours: string
           id?: string
           instagram?: string | null
@@ -386,6 +388,7 @@ export type Database = {
           facebook?: string | null
           founded_year?: string | null
           generated_site_url?: string | null
+          hero_image_url?: string | null
           hours?: string
           id?: string
           instagram?: string | null

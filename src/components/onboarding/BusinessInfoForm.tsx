@@ -10,6 +10,7 @@ interface BusinessInfoData {
   website: string;
   onlineOrderingUrl: string;
   logo: File | null;
+  heroImage: File | null;
 }
 
 interface BusinessInfoFormProps {
@@ -31,6 +32,12 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
     }
   };
 
+  const handleHeroImageUpload = (files: File[]) => {
+    if (files.length > 0) {
+      updateField('heroImage', files[0]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-6">
@@ -45,6 +52,21 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
         </div>
         <p className="text-sm text-muted-foreground mt-1">
           Recommended: Square format (1:1 ratio), minimum 400x400px
+        </p>
+      </div>
+
+      <div className="mb-6">
+        <Label className="text-base font-medium">Hero Image</Label>
+        <div className="mt-2">
+          <ImageUpload
+            onUpload={handleHeroImageUpload}
+            maxFiles={1}
+            currentFiles={data.heroImage ? [data.heroImage] : []}
+            label="Upload your hero banner image"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          Recommended: Landscape format (16:9 ratio), minimum 1920x600px. This will be the main banner image for your restaurant website.
         </p>
       </div>
       

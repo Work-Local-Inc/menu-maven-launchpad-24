@@ -25,6 +25,7 @@ export interface RestaurantData {
     website: string;
     onlineOrderingUrl: string;
     logo: File | null;
+    heroImage: File | null;
   };
   about: {
     foundedYear: string;
@@ -66,6 +67,7 @@ const initialData: RestaurantData = {
     website: "",
     onlineOrderingUrl: "",
     logo: null,
+    heroImage: null,
   },
   about: {
     foundedYear: "",
@@ -146,6 +148,7 @@ export default function RestaurantOnboarding() {
     try {
       // Upload files first
       let logoUrl = null;
+      let heroImageUrl = null;
       let aboutImageUrl = null;
       let menuPdfUrl = null;
       const photoUrls: string[] = [];
@@ -155,6 +158,11 @@ export default function RestaurantOnboarding() {
       // Upload logo if exists
       if (formData.businessInfo.logo) {
         logoUrl = await uploadImage(formData.businessInfo.logo, `logos/${Date.now()}-logo`);
+      }
+
+      // Upload hero image if exists
+      if (formData.businessInfo.heroImage) {
+        heroImageUrl = await uploadImage(formData.businessInfo.heroImage, `hero/${Date.now()}-hero`);
       }
 
       // Upload about image if exists
@@ -200,6 +208,7 @@ export default function RestaurantOnboarding() {
           website: formData.businessInfo.website,
           online_ordering_url: formData.businessInfo.onlineOrderingUrl,
           logo_url: logoUrl,
+          hero_image_url: heroImageUrl,
           founded_year: formData.about.foundedYear,
           story: formData.about.story,
           owner_quote: formData.about.ownerQuote,
