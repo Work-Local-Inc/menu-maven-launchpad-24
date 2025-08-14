@@ -5,6 +5,7 @@ import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { BusinessInfoForm } from "@/components/onboarding/BusinessInfoForm";
 import { AboutForm } from "@/components/onboarding/AboutForm";
 import { PopularDishesForm } from "@/components/onboarding/PopularDishesForm";
+import { DealsForm } from "@/components/onboarding/DealsForm";
 import { MenuUploadForm } from "@/components/onboarding/MenuUploadForm";
 import { DeliveryHoursForm } from "@/components/onboarding/DeliveryHoursForm";
 import { PhotosForm } from "@/components/onboarding/PhotosForm";
@@ -23,6 +24,7 @@ export interface RestaurantData {
     phone: string;
     website: string;
     onlineOrderingUrl: string;
+    logo: File | null;
   };
   about: {
     foundedYear: string;
@@ -32,6 +34,11 @@ export interface RestaurantData {
   };
   popularDishes: Array<{
     name: string;
+    description: string;
+    image: File | null;
+  }>;
+  deals: Array<{
+    title: string;
     description: string;
     image: File | null;
   }>;
@@ -58,6 +65,7 @@ const initialData: RestaurantData = {
     phone: "",
     website: "",
     onlineOrderingUrl: "",
+    logo: null,
   },
   about: {
     foundedYear: "",
@@ -66,6 +74,7 @@ const initialData: RestaurantData = {
     aboutImage: null,
   },
   popularDishes: [],
+  deals: [],
   menuPdf: null,
   deliveryHours: {
     deliveryAreas: "",
@@ -85,6 +94,7 @@ const steps = [
   "Business Info",
   "About Us", 
   "Popular Dishes",
+  "Deals & Offers",
   "Menu Upload",
   "Delivery & Hours",
   "Photos",
@@ -135,10 +145,17 @@ export default function RestaurantOnboarding() {
     setIsSubmitting(true);
     try {
       // Upload files first
+      let logoUrl = null;
       let aboutImageUrl = null;
       let menuPdfUrl = null;
       const photoUrls: string[] = [];
       const dishImageUrls: { [key: number]: string } = {};
+      const dealImageUrls: { [key: number]: string } = {};
+
+      // Upload logo if exists
+      if (formData.businessInfo.logo) {
+        logoUrl = await uploadImage(formData.businessInfo.logo, `logos/${Date.now()}-logo`);
+      }
 
       // Upload about image if exists
       if (formData.about.aboutImage) {
@@ -164,6 +181,14 @@ export default function RestaurantOnboarding() {
         }
       }
 
+      // Upload deal images
+      for (let i = 0; i < formData.deals.length; i++) {
+        if (formData.deals[i].image) {
+          const url = await uploadImage(formData.deals[i].image!, `deals/${Date.now()}-deal-${i}`);
+          dealImageUrls[i] = url;
+        }
+      }
+
       // Create restaurant submission
       const { data: submission, error: submissionError } = await supabase
         .from('restaurant_submissions')
@@ -174,6 +199,7 @@ export default function RestaurantOnboarding() {
           phone: formData.businessInfo.phone,
           website: formData.businessInfo.website,
           online_ordering_url: formData.businessInfo.onlineOrderingUrl,
+          logo_url: logoUrl,
           founded_year: formData.about.foundedYear,
           story: formData.about.story,
           owner_quote: formData.about.ownerQuote,
@@ -207,6 +233,23 @@ export default function RestaurantOnboarding() {
           .insert(dishesData);
 
         if (dishesError) throw dishesError;
+      }
+
+      // Insert deals
+      if (formData.deals.length > 0) {
+        const dealsData = formData.deals.map((deal, index) => ({
+          restaurant_submission_id: submission.id,
+          title: deal.title,
+          description: deal.description,
+          image_url: dealImageUrls[index] || null,
+          display_order: index,
+        }));
+
+        const { error: dealsError } = await supabase
+          .from('restaurant_deals')
+          .insert(dealsData);
+
+        if (dealsError) throw dealsError;
       }
 
       // Insert photos
@@ -271,26 +314,33 @@ export default function RestaurantOnboarding() {
         );
       case 3:
         return (
+          <DealsForm
+            data={formData.deals}
+            onChange={(data) => updateFormData('deals', data)}
+          />
+        );
+      case 4:
+        return (
           <MenuUploadForm
             data={formData.menuPdf}
             onChange={(data) => updateFormData('menuPdf', data)}
           />
         );
-      case 4:
+      case 5:
         return (
           <DeliveryHoursForm
             data={formData.deliveryHours}
             onChange={(data) => updateFormData('deliveryHours', data)}
           />
         );
-      case 5:
+      case 6:
         return (
           <PhotosForm
             data={formData.photos}
             onChange={(data) => updateFormData('photos', data)}
           />
         );
-      case 6:
+      case 7:
         return (
           <SocialForm
             data={formData.social}

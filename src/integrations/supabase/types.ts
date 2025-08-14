@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -222,6 +222,36 @@ export type Database = {
           },
         ]
       }
+      restaurant_deals: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          image_url: string | null
+          restaurant_submission_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          restaurant_submission_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          restaurant_submission_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       restaurant_dishes: {
         Row: {
           created_at: string
@@ -307,6 +337,7 @@ export type Database = {
           hours: string
           id: string
           instagram: string | null
+          logo_url: string | null
           menu_pdf_url: string | null
           online_ordering_url: string | null
           owner_quote: string | null
@@ -332,6 +363,7 @@ export type Database = {
           hours: string
           id?: string
           instagram?: string | null
+          logo_url?: string | null
           menu_pdf_url?: string | null
           online_ordering_url?: string | null
           owner_quote?: string | null
@@ -357,6 +389,7 @@ export type Database = {
           hours?: string
           id?: string
           instagram?: string | null
+          logo_url?: string | null
           menu_pdf_url?: string | null
           online_ordering_url?: string | null
           owner_quote?: string | null
@@ -506,12 +539,12 @@ export type Database = {
       get_automation_logs: {
         Args: Record<PropertyKey, never>
         Returns: {
+          created_at: string
+          error_message: string
           id: string
+          offers_added: number
           run_date: string
           success: boolean
-          offers_added: number
-          error_message: string
-          created_at: string
         }[]
       }
     }

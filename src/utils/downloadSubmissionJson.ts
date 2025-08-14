@@ -29,11 +29,21 @@ export const downloadSubmissionJson = async (submissionId: string) => {
 
     if (photosError) throw photosError;
 
+    // Fetch deals
+    const { data: deals, error: dealsError } = await supabase
+      .from('restaurant_deals')
+      .select('*')
+      .eq('restaurant_submission_id', submissionId)
+      .order('display_order');
+
+    if (dealsError) throw dealsError;
+
     // Create comprehensive JSON structure
     const exportData = {
       restaurant: {
         id: submission.id,
         name: submission.restaurant_name,
+        logo_url: submission.logo_url,
         address: submission.address,
         email: submission.email,
         phone: submission.phone,
@@ -65,6 +75,13 @@ export const downloadSubmissionJson = async (submissionId: string) => {
         image_url: dish.image_url,
         display_order: dish.display_order
       })) || [],
+      deals: deals?.map(deal => ({
+        id: deal.id,
+        title: deal.title,
+        description: deal.description,
+        image_url: deal.image_url,
+        display_order: deal.display_order
+      })) || [],
       photos: photos?.map(photo => ({
         id: photo.id,
         image_url: photo.image_url,
@@ -72,8 +89,10 @@ export const downloadSubmissionJson = async (submissionId: string) => {
       })) || [],
       additional_comments: submission.comments,
       integration_instructions: {
+        branding: "Use restaurant.logo_url for brand logo placement throughout the site",
         ordering_platform: "Use restaurant.online_ordering_url for all 'Order Now' and 'View Menu' buttons",
         menu_display: "Use restaurant.menu_pdf_url for downloadable menu links",
+        deals_promotion: "Feature deals prominently on homepage and dedicated deals page",
         note: "The online_ordering_url connects to your unified ordering platform backend"
       },
       export_metadata: {

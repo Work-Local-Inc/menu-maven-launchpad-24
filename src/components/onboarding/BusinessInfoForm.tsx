@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ImageUpload";
 
 interface BusinessInfoData {
   name: string;
@@ -8,6 +9,7 @@ interface BusinessInfoData {
   phone: string;
   website: string;
   onlineOrderingUrl: string;
+  logo: File | null;
 }
 
 interface BusinessInfoFormProps {
@@ -16,15 +18,36 @@ interface BusinessInfoFormProps {
 }
 
 export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
-  const updateField = (field: keyof BusinessInfoData, value: string) => {
+  const updateField = (field: keyof BusinessInfoData, value: string | File | null) => {
     onChange({
       ...data,
       [field]: value
     });
   };
 
+  const handleLogoUpload = (files: File[]) => {
+    if (files.length > 0) {
+      updateField('logo', files[0]);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <Label className="text-base font-medium">Restaurant Logo</Label>
+        <div className="mt-2">
+          <ImageUpload
+            onUpload={handleLogoUpload}
+            maxFiles={1}
+            currentFiles={data.logo ? [data.logo] : []}
+            label="Upload your restaurant logo"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          Recommended: Square format (1:1 ratio), minimum 400x400px
+        </p>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="name" className="text-base font-medium">
