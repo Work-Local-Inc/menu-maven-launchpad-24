@@ -288,6 +288,13 @@ export type Database = {
             referencedRelation: "restaurant_submissions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "restaurant_dishes_restaurant_submission_id_fkey"
+            columns: ["restaurant_submission_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_submissions_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       restaurant_photos: {
@@ -318,6 +325,13 @@ export type Database = {
             columns: ["restaurant_submission_id"]
             isOneToOne: false
             referencedRelation: "restaurant_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_photos_restaurant_submission_id_fkey"
+            columns: ["restaurant_submission_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_submissions_public"
             referencedColumns: ["id"]
           },
         ]
@@ -536,7 +550,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      restaurant_submissions_public: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          delivery_areas: string | null
+          founded_year: string | null
+          generated_site_url: string | null
+          hero_image_url: string | null
+          hours: string | null
+          id: string | null
+          logo_url: string | null
+          online_ordering_url: string | null
+          restaurant_name: string | null
+          status: string | null
+          story: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          delivery_areas?: string | null
+          founded_year?: string | null
+          generated_site_url?: string | null
+          hero_image_url?: string | null
+          hours?: string | null
+          id?: string | null
+          logo_url?: string | null
+          online_ordering_url?: string | null
+          restaurant_name?: string | null
+          status?: string | null
+          story?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          delivery_areas?: string | null
+          founded_year?: string | null
+          generated_site_url?: string | null
+          hero_image_url?: string | null
+          hours?: string | null
+          id?: string | null
+          logo_url?: string | null
+          online_ordering_url?: string | null
+          restaurant_name?: string | null
+          status?: string | null
+          story?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_automation_logs: {
