@@ -238,8 +238,6 @@ export default function RestaurantOnboarding() {
           facebook: formData.social.facebook,
           twitter: formData.social.twitter,
           comments: formData.social.comments,
-          title_font: formData.fonts.titleFont,
-          paragraph_font: formData.fonts.paragraphFont,
         })
         .select()
         .single();
