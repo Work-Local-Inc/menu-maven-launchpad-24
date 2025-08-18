@@ -10,6 +10,8 @@ import { MenuUploadForm } from "@/components/onboarding/MenuUploadForm";
 import { DeliveryHoursForm } from "@/components/onboarding/DeliveryHoursForm";
 import { PhotosForm } from "@/components/onboarding/PhotosForm";
 import { SocialForm } from "@/components/onboarding/SocialForm";
+import { FontSelectionForm } from "@/components/onboarding/FontSelectionForm";
+import { FaqForm } from "@/components/onboarding/FaqForm";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-bg.jpg";
 const menuLogo = "https://i.imgur.com/AYyrnpP.png";
@@ -56,6 +58,14 @@ export interface RestaurantData {
     twitter: string;
     comments: string;
   };
+  fonts: {
+    titleFont: string;
+    paragraphFont: string;
+  };
+  faqs: Array<{
+    question: string;
+    answer: string;
+  }>;
 }
 
 const initialData: RestaurantData = {
@@ -90,6 +100,11 @@ const initialData: RestaurantData = {
     twitter: "",
     comments: "",
   },
+  fonts: {
+    titleFont: "",
+    paragraphFont: "",
+  },
+  faqs: [],
 };
 
 const steps = [
@@ -100,6 +115,8 @@ const steps = [
   "Menu Upload",
   "Delivery & Hours",
   "Photos",
+  "Fonts & Style",
+  "FAQs",
   "Social & Extras"
 ];
 
@@ -221,6 +238,8 @@ export default function RestaurantOnboarding() {
           facebook: formData.social.facebook,
           twitter: formData.social.twitter,
           comments: formData.social.comments,
+          title_font: formData.fonts.titleFont,
+          paragraph_font: formData.fonts.paragraphFont,
         })
         .select()
         .single();
@@ -274,6 +293,30 @@ export default function RestaurantOnboarding() {
           .insert(photosData);
 
         if (photosError) throw photosError;
+      }
+
+      // Insert FAQs
+      if (formData.faqs.length > 0) {
+        const faqsData = formData.faqs.map((faq, index) => ({
+          restaurant_submission_id: submission.id,
+          question: faq.question,
+          answer: faq.answer,
+          display_order: index,
+        }));
+
+        // Note: This will be handled once the database types are updated
+        // For now, we'll store FAQs in the comments field as JSON
+        const faqsJson = JSON.stringify(formData.faqs);
+        
+        // Update submission with FAQs in comments field temporarily
+        const { error: faqsError } = await supabase
+          .from('restaurant_submissions')
+          .update({ 
+            comments: formData.social.comments + (formData.social.comments ? '\n\nFAQs:\n' : 'FAQs:\n') + faqsJson 
+          })
+          .eq('id', submission.id);
+
+        if (faqsError) throw faqsError;
       }
       
       toast({
@@ -350,6 +393,20 @@ export default function RestaurantOnboarding() {
           />
         );
       case 7:
+        return (
+          <FontSelectionForm
+            data={formData.fonts}
+            onChange={(data) => updateFormData('fonts', data)}
+          />
+        );
+      case 8:
+        return (
+          <FaqForm
+            data={formData.faqs}
+            onChange={(data) => updateFormData('faqs', data)}
+          />
+        );
+      case 9:
         return (
           <SocialForm
             data={formData.social}
