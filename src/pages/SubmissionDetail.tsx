@@ -21,6 +21,7 @@ export default function SubmissionDetail() {
   const [submission, setSubmission] = useState<any>(null);
   const [dishes, setDishes] = useState<any[]>([]);
   const [photos, setPhotos] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,9 +56,19 @@ export default function SubmissionDetail() {
 
         if (photosError) throw photosError;
 
+        // Fetch deals
+        const { data: dealsData, error: dealsError } = await supabase
+          .from('restaurant_deals')
+          .select('*')
+          .eq('restaurant_submission_id', id)
+          .order('display_order');
+
+        if (dealsError) throw dealsError;
+
         setSubmission(submissionData);
         setDishes(dishesData || []);
         setPhotos(photosData || []);
+        setDeals(dealsData || []);
       } catch (error) {
         console.error('Error fetching submission:', error);
         toast({
@@ -261,6 +272,34 @@ export default function SubmissionDetail() {
               </div>
             ) : (
               <p className="text-muted-foreground">No dishes added yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Deals */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Special Deals & Offers ({deals.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {deals.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {deals.map((deal) => (
+                  <div key={deal.id} className="border rounded-lg p-4">
+                    {deal.image_url && (
+                      <img 
+                        src={deal.image_url} 
+                        alt={deal.title}
+                        className="w-full h-32 object-cover rounded-lg mb-3"
+                      />
+                    )}
+                    <h4 className="font-semibold mb-2">{deal.title}</h4>
+                    <p className="text-sm text-muted-foreground">{deal.description}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No deals added yet.</p>
             )}
           </CardContent>
         </Card>
