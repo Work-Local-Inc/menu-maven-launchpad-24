@@ -126,7 +126,7 @@ export default function RestaurantOnboarding() {
   const [formData, setFormData] = useState<RestaurantData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { uploadImage, uploadPDF, uploadMenuFile, uploading } = useFileUpload();
+  const { uploadImage, uploadLogo, uploadPDF, uploadMenuFile, uploading } = useFileUpload();
 
   const updateFormData = (section: keyof RestaurantData, data: any) => {
     setFormData(prev => ({
@@ -174,7 +174,7 @@ export default function RestaurantOnboarding() {
 
       // Upload logo if exists
       if (formData.businessInfo.logo) {
-        logoUrl = await uploadImage(formData.businessInfo.logo, `logos/${Date.now()}-logo`);
+        logoUrl = await uploadLogo(formData.businessInfo.logo, `logos/${Date.now()}-logo`);
       }
 
       // Upload hero image if exists

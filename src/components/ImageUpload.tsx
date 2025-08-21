@@ -90,7 +90,7 @@ export function ImageUpload({
           Select Files
         </Button>
         <p className="text-xs text-muted-foreground mt-2">
-          {currentFiles.length}/{maxFiles} files selected
+          {currentFiles.length}/{maxFiles} files selected • Images automatically optimized for web
         </p>
       </div>
 
