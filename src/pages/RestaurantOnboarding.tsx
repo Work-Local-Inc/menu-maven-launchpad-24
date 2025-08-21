@@ -317,6 +317,17 @@ export default function RestaurantOnboarding() {
         if (faqsError) throw faqsError;
       }
       
+      // Send email notification in the background (don't block success)
+      try {
+        await supabase.functions.invoke('send-submission-notification', {
+          body: { submissionId: submission.id }
+        });
+        console.log('Email notification sent successfully');
+      } catch (emailError) {
+        console.error('Email notification failed (non-blocking):', emailError);
+        // Don't throw - we don't want email failures to block submission success
+      }
+      
       toast({
         title: "Restaurant information submitted!",
         description: "Thank you for sharing your restaurant details with us.",
