@@ -44,7 +44,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
           <li>• Include a mix of food photos, interior shots, and exterior views</li>
           <li>• Use good lighting - natural light works best for food photography</li>
           <li>• Show your restaurant's personality and atmosphere</li>
-          <li>• High-resolution images (at least 1200px wide) look best</li>
+          <li>• Recommended: Min. 1600px on longest edge, mixed orientations work well</li>
           <li>• Avoid blurry or poorly lit photos</li>
         </ul>
       </div>

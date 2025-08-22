@@ -105,6 +105,9 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
               <p className="text-sm text-muted-foreground mt-1">
                 Upload an appetizing image that represents this deal
               </p>
+              <p className="text-sm text-muted-foreground">
+                Recommended size: Wide banner 16:9 ratio (min. 1600×900px)
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -91,6 +91,9 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
         <p className="text-sm text-muted-foreground mt-1">
           A photo of the restaurant, owner, or signature dish that represents your story
         </p>
+        <p className="text-sm text-muted-foreground">
+          Recommended size: Landscape 3:2 ratio (min. 1600×1067px)
+        </p>
       </div>
     </div>
   );
