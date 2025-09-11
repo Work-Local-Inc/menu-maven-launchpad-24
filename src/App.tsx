@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import RestaurantOnboarding from "./pages/RestaurantOnboarding";
 import AdminDashboard from "./pages/AdminDashboard";
 import SubmissionDetail from "./pages/SubmissionDetail";
+import ImageOptimizer from "./pages/ImageOptimizer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/onboarding" element={<RestaurantOnboarding />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/submission/:id" element={<SubmissionDetail />} />
+          <Route path="/image-optimizer" element={<ImageOptimizer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
