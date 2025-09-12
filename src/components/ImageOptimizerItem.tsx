@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X, Image as ImageIcon } from 'lucide-react';
+import { X, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { sanitizeFilename, generateSEOFilename, getCategorySuggestions, getImageDimensions } from '@/utils/filenameUtils';
+import { useAIImageAnalysis } from '@/hooks/useAIImageAnalysis';
 
 interface ImageOptimizerItemProps {
   file: File;
@@ -42,6 +43,9 @@ export function ImageOptimizerItem({ file, index, language, onUpdate, onRemove }
   const [seoFilename, setSeoFilename] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [dimensions, setDimensions] = useState<{ width: number; height: number }>();
+  const [isAIGenerated, setIsAIGenerated] = useState(false);
+  
+  const { analyzeImage, analyzing } = useAIImageAnalysis();
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -81,6 +85,40 @@ export function ImageOptimizerItem({ file, index, language, onUpdate, onRemove }
     const suggestions = getCategorySuggestions(value);
     if (suggestions.length > 0 && !dishName) {
       setDishName(suggestions[0].replace(/-/g, ' '));
+    }
+  };
+
+  const handleAIAnalysis = async () => {
+    if (!category) {
+      // If no category selected, try with 'popular-dishes' as default
+      try {
+        const result = await analyzeImage(file, 'popular-dishes', language);
+        if (result.suggestedCategory) {
+          setCategory(result.suggestedCategory);
+        }
+        if (result.dishName && !dishName) {
+          setDishName(result.dishName);
+        }
+        if (result.description) {
+          setDescription(result.description);
+          setIsAIGenerated(true);
+        }
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      }
+    } else {
+      try {
+        const result = await analyzeImage(file, category, language);
+        if (result.dishName && !dishName) {
+          setDishName(result.dishName);
+        }
+        if (result.description) {
+          setDescription(result.description);
+          setIsAIGenerated(true);
+        }
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      }
     }
   };
 
@@ -186,17 +224,50 @@ export function ImageOptimizerItem({ file, index, language, onUpdate, onRemove }
             </div>
 
             <div>
-              <Label htmlFor={`description-${index}`}>Description *</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor={`description-${index}`}>Description *</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAIAnalysis}
+                  disabled={analyzing}
+                  className="h-8"
+                >
+                  {analyzing ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Generate with AI
+                    </>
+                  )}
+                </Button>
+              </div>
               <Textarea
                 id={`description-${index}`}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setIsAIGenerated(false);
+                }}
                 placeholder={category ? getDescriptionTemplate(category) : `Enter ${language === 'fr' ? 'French' : 'English'} description...`}
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Include ingredients, context, and location details
-              </p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-xs text-muted-foreground">
+                  Include ingredients, context, and location details
+                </p>
+                {isAIGenerated && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Sparkles className="h-2 w-2 mr-1" />
+                    AI Generated
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </div>
