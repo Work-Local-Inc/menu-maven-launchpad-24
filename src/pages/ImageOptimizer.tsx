@@ -15,6 +15,7 @@ export default function ImageOptimizer() {
   const [optimizedData, setOptimizedData] = useState<OptimizedImageData[]>([]);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
   const { uploadImage, uploading } = useFileUpload();
   const { toast } = useToast();
 
@@ -120,10 +121,28 @@ export default function ImageOptimizer() {
     <div className="container mx-auto py-8 space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
+        <div className="flex justify-center mb-4">
+          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+            <Button
+              variant={language === 'en' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setLanguage('en')}
+            >
+              EN
+            </Button>
+            <Button
+              variant={language === 'fr' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setLanguage('fr')}
+            >
+              FR
+            </Button>
+          </div>
+        </div>
         <h1 className="text-4xl font-bold">Image Optimization Tool</h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Client-proof image processor that converts your DSC#### files into SEO-optimized, 
-          properly sized WebP images with French descriptions.
+          Professional image processor that converts your DSC#### files into SEO-optimized, 
+          properly sized WebP images with localized descriptions.
         </p>
       </div>
 
@@ -261,7 +280,7 @@ export default function ImageOptimizer() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Please complete all required fields (marked with red borders) before processing.
-            Each image needs a category, dish name, and French description.
+            Each image needs a category, dish name, and description.
           </AlertDescription>
         </Alert>
       )}
@@ -277,6 +296,7 @@ export default function ImageOptimizer() {
                 key={`${file.name}-${index}`}
                 file={file}
                 index={index}
+                language={language}
                 onUpdate={updateOptimizedData}
                 onRemove={removeFile}
               />

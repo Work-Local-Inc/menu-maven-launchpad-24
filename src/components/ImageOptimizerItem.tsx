@@ -12,6 +12,7 @@ import { sanitizeFilename, generateSEOFilename, getCategorySuggestions, getImage
 interface ImageOptimizerItemProps {
   file: File;
   index: number;
+  language: 'en' | 'fr';
   onUpdate: (index: number, data: OptimizedImageData) => void;
   onRemove: (index: number) => void;
 }
@@ -34,7 +35,7 @@ const categories = [
   { value: 'menu', label: 'Menu', sizing: '1600px high-res' },
 ];
 
-export function ImageOptimizerItem({ file, index, onUpdate, onRemove }: ImageOptimizerItemProps) {
+export function ImageOptimizerItem({ file, index, language, onUpdate, onRemove }: ImageOptimizerItemProps) {
   const [category, setCategory] = useState('');
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
@@ -85,12 +86,20 @@ export function ImageOptimizerItem({ file, index, onUpdate, onRemove }: ImageOpt
 
   const getDescriptionTemplate = (cat: string) => {
     const templates = {
-      'popular-dishes': 'Savourez notre [plat] : [description détaillée avec ingrédients]. Parfait pour [contexte], disponible en salle, à emporter ou en livraison à Gatineau.',
-      'gallery': 'Photo de [description] chez Milano Pizza Gatineau.',
-      'vegan-keto': 'Notre option [keto/vegan] : [description]. Une alternative délicieuse pour [type de régime] à Gatineau.',
-      'menu': 'Menu complet Milano Pizza Gatineau [année].'
+      en: {
+        'popular-dishes': 'Enjoy our [dish] : [detailed description with ingredients]. Perfect for [context], available for dine-in, takeout, or delivery in Gatineau.',
+        'gallery': 'Photo of [description] at Milano Pizza Gatineau.',
+        'vegan-keto': 'Our [keto/vegan] option: [description]. A delicious alternative for [diet type] in Gatineau.',
+        'menu': 'Complete Milano Pizza Gatineau menu [year].'
+      },
+      fr: {
+        'popular-dishes': 'Savourez notre [plat] : [description détaillée avec ingrédients]. Parfait pour [contexte], disponible en salle, à emporter ou en livraison à Gatineau.',
+        'gallery': 'Photo de [description] chez Milano Pizza Gatineau.',
+        'vegan-keto': 'Notre option [keto/vegan] : [description]. Une alternative délicieuse pour [type de régime] à Gatineau.',
+        'menu': 'Menu complet Milano Pizza Gatineau [année].'
+      }
     };
-    return templates[cat as keyof typeof templates] || '';
+    return templates[language][cat as keyof typeof templates.en] || '';
   };
 
   const selectedCategory = categories.find(c => c.value === category);
@@ -172,21 +181,21 @@ export function ImageOptimizerItem({ file, index, onUpdate, onRemove }: ImageOpt
                 placeholder="e.g., Poutine Poulet Buffalo"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Use French name, will be converted to SEO format
+                Use descriptive name, will be converted to SEO format
               </p>
             </div>
 
             <div>
-              <Label htmlFor={`description-${index}`}>French Description *</Label>
+              <Label htmlFor={`description-${index}`}>Description *</Label>
               <Textarea
                 id={`description-${index}`}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={category ? getDescriptionTemplate(category) : 'Enter French description...'}
+                placeholder={category ? getDescriptionTemplate(category) : `Enter ${language === 'fr' ? 'French' : 'English'} description...`}
                 rows={3}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Include ingredients, context, and location (Gatineau)
+                Include ingredients, context, and location details
               </p>
             </div>
           </div>
