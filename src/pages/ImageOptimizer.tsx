@@ -101,24 +101,44 @@ export default function ImageOptimizer() {
         const img = new Image();
         
         await new Promise<void>((resolve, reject) => {
-          img.onload = () => {
+          img.onload = async () => {
             canvas.width = img.width;
             canvas.height = img.height;
             ctx?.drawImage(img, 0, 0);
             
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = data.seoFilename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-              }
-              resolve();
-            }, 'image/webp', 0.9);
+            // Try different WebP quality settings to find the smallest file
+            const qualities = [0.6, 0.7, 0.8, 0.85];
+            let bestBlob: Blob | null = null;
+            let smallestSize = file.size; // Start with original size
+            
+            // Test each quality setting
+            for (const quality of qualities) {
+              await new Promise<void>((resolveQuality) => {
+                canvas.toBlob((blob) => {
+                  if (blob && blob.size < smallestSize) {
+                    bestBlob = blob;
+                    smallestSize = blob.size;
+                  }
+                  resolveQuality();
+                }, 'image/webp', quality);
+              });
+            }
+            
+            // If no WebP version is smaller, use original file
+            const finalBlob = bestBlob || file;
+            const finalFilename = bestBlob ? data.seoFilename : data.seoFilename.replace('.webp', '.jpg');
+            
+            const url = URL.createObjectURL(finalBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = finalFilename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log(`${data.originalFilename}: ${(file.size/1024/1024).toFixed(2)}MB → ${(finalBlob.size/1024/1024).toFixed(2)}MB`);
+            resolve();
           };
           img.onerror = reject;
           img.src = URL.createObjectURL(file);
