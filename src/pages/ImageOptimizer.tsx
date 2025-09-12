@@ -102,14 +102,20 @@ export default function ImageOptimizer() {
         
         await new Promise<void>((resolve, reject) => {
           img.onload = async () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx?.drawImage(img, 0, 0);
+            // Calculate optimal dimensions (max 1600px on longest side for under 800KB target)
+            const maxDimension = 1600;
+            const scale = Math.min(maxDimension / img.width, maxDimension / img.height, 1);
+            const newWidth = Math.round(img.width * scale);
+            const newHeight = Math.round(img.height * scale);
             
-            // Try different WebP quality settings to find the smallest file
-            const qualities = [0.6, 0.7, 0.8, 0.85];
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            ctx?.drawImage(img, 0, 0, newWidth, newHeight);
+            
+            // Try different WebP quality settings to find the smallest file under 800KB
+            const qualities = [0.6, 0.7, 0.8, 0.85, 0.9];
             let bestBlob: Blob | null = null;
-            let smallestSize = file.size; // Start with original size
+            let smallestSize = Math.min(file.size, 800 * 1024); // Target max 800KB
             
             // Test each quality setting
             for (const quality of qualities) {
@@ -122,6 +128,9 @@ export default function ImageOptimizer() {
                   resolveQuality();
                 }, 'image/webp', quality);
               });
+              
+              // Stop if we found a version under 800KB
+              if (bestBlob && bestBlob.size < 800 * 1024) break;
             }
             
             // If no WebP version is smaller, use original file
