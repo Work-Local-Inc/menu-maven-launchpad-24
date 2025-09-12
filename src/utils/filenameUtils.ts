@@ -20,8 +20,8 @@ export const generateSEOFilename = (dishName: string, category: string, restaura
       return `${cleanDishName}-${restaurant}.webp`;
     case 'gallery':
       return `${restaurant}-${cleanDishName}.webp`;
-    case 'vegan-keto':
-      return `${cleanDishName}-keto-${restaurant}.webp`;
+    case 'deals':
+      return `${cleanDishName}-deal-${restaurant}.webp`;
     case 'menu':
       return `menu-${restaurant}-${new Date().getFullYear()}.webp`;
     default:
@@ -45,10 +45,10 @@ export const getCategorySuggestions = (category: string): string[] => {
       'terrasse',
       'equipe-milano'
     ],
-    'vegan-keto': [
-      'pizza-keto',
-      'poutine-keto',
-      'doigts-poulet-keto'
+    'deals': [
+      'pizza-special-deal',
+      'combo-meal-deal',
+      'family-pack-deal'
     ],
     'menu': [
       'menu-complet',

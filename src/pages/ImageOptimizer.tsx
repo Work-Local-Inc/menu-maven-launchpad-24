@@ -173,7 +173,7 @@ export default function ImageOptimizer() {
               </ul>
             </div>
             <div>
-              <h4 className="font-medium mb-2">Vegan/Keto</h4>
+              <h4 className="font-medium mb-2">Deals</h4>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• 1200×900px landscape</li>
                 <li>• ≤300KB WebP</li>

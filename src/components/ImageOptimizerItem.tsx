@@ -31,7 +31,7 @@ export interface OptimizedImageData {
 const categories = [
   { value: 'popular-dishes', label: 'Popular Dishes', sizing: '1200×900px landscape' },
   { value: 'gallery', label: 'Gallery', sizing: '1600px max, mixed orientations' },
-  { value: 'vegan-keto', label: 'Vegan/Keto', sizing: '1200×900px landscape' },
+  { value: 'deals', label: 'Deals', sizing: '1200×900px landscape' },
   { value: 'menu', label: 'Menu', sizing: '1600px high-res' },
 ];
 
@@ -89,13 +89,13 @@ export function ImageOptimizerItem({ file, index, language, onUpdate, onRemove }
       en: {
         'popular-dishes': 'Enjoy our [dish] : [detailed description with ingredients]. Perfect for [context], available for dine-in, takeout, or delivery in Gatineau.',
         'gallery': 'Photo of [description] at Milano Pizza Gatineau.',
-        'vegan-keto': 'Our [keto/vegan] option: [description]. A delicious alternative for [diet type] in Gatineau.',
+        'deals': 'Special deal at Milano Pizza Gatineau: [description]. Limited time offer for [context], available for dine-in, takeout, or delivery.',
         'menu': 'Complete Milano Pizza Gatineau menu [year].'
       },
       fr: {
         'popular-dishes': 'Savourez notre [plat] : [description détaillée avec ingrédients]. Parfait pour [contexte], disponible en salle, à emporter ou en livraison à Gatineau.',
         'gallery': 'Photo de [description] chez Milano Pizza Gatineau.',
-        'vegan-keto': 'Notre option [keto/vegan] : [description]. Une alternative délicieuse pour [type de régime] à Gatineau.',
+        'deals': 'Offre spéciale chez Milano Pizza Gatineau : [description]. Promotion à durée limitée pour [contexte], disponible en salle, à emporter ou en livraison.',
         'menu': 'Menu complet Milano Pizza Gatineau [année].'
       }
     };
