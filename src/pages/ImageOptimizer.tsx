@@ -93,15 +93,43 @@ export default function ImageOptimizer() {
     try {
       for (let i = 0; i < optimizedData.length; i++) {
         const data = optimizedData[i];
-        // Here you would implement the actual image optimization and upload
-        // For now, we'll simulate the process
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const file = files[i];
+        
+        // Create a download link for each processed image with SEO filename
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx?.drawImage(img, 0, 0);
+            
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = data.seoFilename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }
+              resolve();
+            }, 'image/webp', 0.9);
+          };
+          img.onerror = reject;
+          img.src = URL.createObjectURL(file);
+        });
+        
         setProgress(((i + 1) / optimizedData.length) * 100);
       }
 
       toast({
         title: "Success!",
-        description: `${optimizedData.length} images processed successfully.`
+        description: `${optimizedData.length} images processed and downloaded successfully.`
       });
     } catch (error) {
       toast({
