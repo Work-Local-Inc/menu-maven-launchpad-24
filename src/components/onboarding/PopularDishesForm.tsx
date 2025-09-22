@@ -86,6 +86,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
                   <Label className="text-base font-medium">
                     Dish Image *
                   </Label>
+                  <p className="text-sm text-muted-foreground mb-2">Square format preferred • 800×800px or larger • JPG/PNG</p>
                   <div className="mt-2">
                     <ImageUpload
                       onUpload={(files) => handleImageUpload(index, files)}

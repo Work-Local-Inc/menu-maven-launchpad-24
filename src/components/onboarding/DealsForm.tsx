@@ -94,6 +94,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
 
             <div>
               <Label className="text-base font-medium">Deal Image</Label>
+              <p className="text-sm text-muted-foreground mb-2">Square or landscape • 800×800px or larger • JPG/PNG</p>
               <div className="mt-2">
                 <ImageUpload
                   onUpload={(files) => handleImageUpload(index, files)}
@@ -102,12 +103,6 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
                   label="Upload an image for this deal"
                 />
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Upload an appetizing image that represents this deal
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Recommended size: Wide banner 16:9 ratio (min. 1600×900px)
-              </p>
             </div>
           </CardContent>
         </Card>

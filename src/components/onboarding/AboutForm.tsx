@@ -80,6 +80,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
         <Label className="text-base font-medium">
           About Section Image *
         </Label>
+        <p className="text-sm text-muted-foreground mb-2">Portrait or square format • 800×1200px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={handleImageUpload}

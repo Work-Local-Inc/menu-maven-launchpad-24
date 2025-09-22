@@ -41,7 +41,8 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <Label className="text-base font-medium">Restaurant Logo</Label>
+        <Label className="text-base font-medium">Restaurant Logo *</Label>
+        <p className="text-sm text-muted-foreground mb-2">Square format recommended • 512×512px or larger • PNG/JPG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={handleLogoUpload}
@@ -50,13 +51,11 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             label="Upload your restaurant logo"
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          Recommended: Square format (1:1 ratio), minimum 400x400px
-        </p>
       </div>
 
       <div className="mb-6">
-        <Label className="text-base font-medium">Hero Image</Label>
+        <Label className="text-base font-medium">Hero Image *</Label>
+        <p className="text-sm text-muted-foreground mb-2">Wide format recommended • 1600×900px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={handleHeroImageUpload}
@@ -65,9 +64,6 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             label="Upload your hero banner image"
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          Recommended: Landscape format (16:9 ratio), minimum 1920x600px. This will be the main banner image for your restaurant website.
-        </p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

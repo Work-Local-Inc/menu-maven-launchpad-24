@@ -20,6 +20,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
         <Label className="text-base font-medium">
           Restaurant Photos * (3-10 images)
         </Label>
+        <p className="text-sm text-muted-foreground mb-2">Mixed orientations work well • 1200×800px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={onChange}
