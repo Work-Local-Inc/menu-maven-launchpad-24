@@ -95,9 +95,6 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
                       label="Upload dish photo"
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Recommended size: Landscape 4:3 ratio (min. 1200×900px)
-                  </p>
                 </div>
               </div>
 
