@@ -45,7 +45,12 @@ export interface RestaurantData {
     description: string;
     image: File | null;
   }>;
-  menuPdf: File | null;
+  menus: Array<{
+    category: 'breakfast' | 'lunch' | 'dinner' | 'custom';
+    customCategoryName?: string;
+    name: string;
+    file: File | null;
+  }>;
   deliveryHours: {
     deliveryAreas: string;
     instructions: string;
@@ -87,7 +92,7 @@ const initialData: RestaurantData = {
   },
   popularDishes: [],
   deals: [],
-  menuPdf: null,
+  menus: [],
   deliveryHours: {
     deliveryAreas: "",
     instructions: "",
@@ -167,7 +172,7 @@ export default function RestaurantOnboarding() {
       let logoUrl = null;
       let heroImageUrl = null;
       let aboutImageUrl = null;
-      let menuPdfUrl = null;
+      let menuPdfUrl = null; // Legacy compatibility
       const photoUrls: string[] = [];
       const dishImageUrls: { [key: number]: string } = {};
       const dealImageUrls: { [key: number]: string } = {};
@@ -187,9 +192,20 @@ export default function RestaurantOnboarding() {
         aboutImageUrl = await uploadImage(formData.about.aboutImage, `about/${Date.now()}-about`);
       }
 
-      // Upload menu file if exists (PDF or JPG)
-      if (formData.menuPdf) {
-        menuPdfUrl = await uploadMenuFile(formData.menuPdf, `menus/${Date.now()}-menu`);
+      // Upload menu files if they exist
+      const menuUrls: { category: string; customCategoryName?: string; name: string; url: string }[] = [];
+      for (let i = 0; i < formData.menus.length; i++) {
+        const menu = formData.menus[i];
+        if (menu.file) {
+          const categoryName = menu.category === 'custom' ? menu.customCategoryName : menu.category;
+          const url = await uploadMenuFile(menu.file, `menus/${Date.now()}-${categoryName}-${i}`);
+          menuUrls.push({
+            category: menu.category,
+            customCategoryName: menu.customCategoryName,
+            name: menu.name,
+            url
+          });
+        }
       }
 
       // Upload restaurant photos
@@ -230,7 +246,7 @@ export default function RestaurantOnboarding() {
           story: formData.about.story,
           owner_quote: formData.about.ownerQuote,
           about_image_url: aboutImageUrl,
-          menu_pdf_url: menuPdfUrl,
+          menu_pdf_url: menuUrls.length > 0 ? menuUrls[0].url : null, // Keep compatibility
           delivery_areas: formData.deliveryHours.deliveryAreas,
           delivery_instructions: formData.deliveryHours.instructions,
           hours: formData.deliveryHours.hours,
@@ -291,6 +307,24 @@ export default function RestaurantOnboarding() {
           .insert(photosData);
 
         if (photosError) throw photosError;
+      }
+
+      // Insert menus
+      if (menuUrls.length > 0) {
+        const menusData = menuUrls.map((menu, index) => ({
+          restaurant_submission_id: submission.id,
+          category: menu.category,
+          custom_category_name: menu.customCategoryName || null,
+          menu_name: menu.name,
+          menu_url: menu.url,
+          display_order: index,
+        }));
+
+        const { error: menusError } = await supabase
+          .from('restaurant_menus')
+          .insert(menusData);
+
+        if (menusError) throw menusError;
       }
 
       // Insert FAQs
@@ -383,8 +417,8 @@ export default function RestaurantOnboarding() {
       case 4:
         return (
           <MenuUploadForm
-            data={formData.menuPdf}
-            onChange={(data) => updateFormData('menuPdf', data)}
+            data={formData.menus}
+            onChange={(data) => updateFormData('menus', data)}
           />
         );
       case 5:

@@ -143,6 +143,7 @@ export type Database = {
           offer_type: Database["public"]["Enums"]["offer_type"]
           prize_value: string | null
           product_features: string | null
+          slug: string | null
           source_id: string | null
           source_url: string
           structured_data: Json | null
@@ -174,6 +175,7 @@ export type Database = {
           offer_type?: Database["public"]["Enums"]["offer_type"]
           prize_value?: string | null
           product_features?: string | null
+          slug?: string | null
           source_id?: string | null
           source_url: string
           structured_data?: Json | null
@@ -205,6 +207,7 @@ export type Database = {
           offer_type?: Database["public"]["Enums"]["offer_type"]
           prize_value?: string | null
           product_features?: string | null
+          slug?: string | null
           source_id?: string | null
           source_url?: string
           structured_data?: Json | null
@@ -296,6 +299,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      restaurant_menus: {
+        Row: {
+          category: string
+          created_at: string
+          custom_category_name: string | null
+          display_order: number
+          id: string
+          menu_name: string
+          menu_url: string
+          restaurant_submission_id: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          custom_category_name?: string | null
+          display_order?: number
+          id?: string
+          menu_name: string
+          menu_url: string
+          restaurant_submission_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          custom_category_name?: string | null
+          display_order?: number
+          id?: string
+          menu_name?: string
+          menu_url?: string
+          restaurant_submission_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       restaurant_photos: {
         Row: {
@@ -603,6 +642,10 @@ export type Database = {
       }
     }
     Functions: {
+      generate_slug: {
+        Args: { input_text: string }
+        Returns: string
+      }
       get_automation_logs: {
         Args: Record<PropertyKey, never>
         Returns: {
