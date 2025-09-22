@@ -46,18 +46,18 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
       title: "",
       description: "",
       image: null,
-      position: data.customSections.length + 1
+      position: (data.customSections || []).length + 1
     };
-    updateField('customSections', [...data.customSections, newSection]);
+    updateField('customSections', [...(data.customSections || []), newSection]);
   };
 
   const removeCustomSection = (id: string) => {
-    const updatedSections = data.customSections.filter(section => section.id !== id);
+    const updatedSections = (data.customSections || []).filter(section => section.id !== id);
     updateField('customSections', updatedSections);
   };
 
   const updateCustomSection = (id: string, field: keyof CustomSection, value: any) => {
-    const updatedSections = data.customSections.map(section =>
+    const updatedSections = (data.customSections || []).map(section =>
       section.id === id ? { ...section, [field]: value } : section
     );
     updateField('customSections', updatedSections);
@@ -153,7 +153,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
           </Button>
         </div>
 
-        {data.customSections.map((section, index) => (
+        {(data.customSections || []).map((section, index) => (
           <Card key={section.id} className="p-4 mb-4">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-medium">Custom Section {index + 1}</h4>
