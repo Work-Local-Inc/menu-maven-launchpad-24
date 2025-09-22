@@ -34,6 +34,13 @@ export interface RestaurantData {
     story: string;
     ownerQuote: string;
     aboutImage: File | null;
+    customSections: Array<{
+      id: string;
+      title: string;
+      description: string;
+      image: File | null;
+      position: number;
+    }>;
   };
   popularDishes: Array<{
     name: string;
@@ -89,6 +96,7 @@ const initialData: RestaurantData = {
     story: "",
     ownerQuote: "",
     aboutImage: null,
+    customSections: [],
   },
   popularDishes: [],
   deals: [],
@@ -187,9 +195,19 @@ export default function RestaurantOnboarding() {
         heroImageUrl = await uploadImage(formData.businessInfo.heroImage, `hero/${Date.now()}-hero`);
       }
 
-      // Upload about image if exists
+      // Upload about image and custom section images if they exist
+      const customSectionImageUrls: { [key: string]: string } = {};
       if (formData.about.aboutImage) {
         aboutImageUrl = await uploadImage(formData.about.aboutImage, `about/${Date.now()}-about`);
+      }
+      
+      // Upload custom section images
+      for (let i = 0; i < formData.about.customSections.length; i++) {
+        const section = formData.about.customSections[i];
+        if (section.image) {
+          const url = await uploadImage(section.image, `custom-sections/${Date.now()}-section-${i}`);
+          customSectionImageUrls[section.id] = url;
+        }
       }
 
       // Upload menu files if they exist
@@ -246,6 +264,13 @@ export default function RestaurantOnboarding() {
           story: formData.about.story,
           owner_quote: formData.about.ownerQuote,
           about_image_url: aboutImageUrl,
+          custom_sections: formData.about.customSections.map(section => ({
+            id: section.id,
+            title: section.title,
+            description: section.description,
+            image_url: customSectionImageUrls[section.id] || null,
+            position: section.position
+          })),
           menu_pdf_url: menuUrls.length > 0 ? menuUrls[0].url : null, // Keep compatibility
           delivery_areas: formData.deliveryHours.deliveryAreas,
           delivery_instructions: formData.deliveryHours.instructions,

@@ -381,6 +381,7 @@ export type Database = {
           address: string
           comments: string | null
           created_at: string
+          custom_sections: Json | null
           delivery_areas: string
           delivery_instructions: string | null
           email: string
@@ -408,6 +409,7 @@ export type Database = {
           address: string
           comments?: string | null
           created_at?: string
+          custom_sections?: Json | null
           delivery_areas: string
           delivery_instructions?: string | null
           email: string
@@ -435,6 +437,7 @@ export type Database = {
           address?: string
           comments?: string | null
           created_at?: string
+          custom_sections?: Json | null
           delivery_areas?: string
           delivery_instructions?: string | null
           email?: string
