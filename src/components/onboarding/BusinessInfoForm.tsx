@@ -55,7 +55,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
 
       <div className="mb-6">
         <Label className="text-base font-medium">Hero Image *</Label>
-        <p className="text-sm text-muted-foreground mb-2">Wide format recommended • 1600×900px or larger • JPG/PNG</p>
+        <p className="text-sm text-muted-foreground mb-2">16:9 aspect ratio • 1280×720px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={handleHeroImageUpload}

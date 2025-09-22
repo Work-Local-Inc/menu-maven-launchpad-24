@@ -20,7 +20,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
         <Label className="text-base font-medium">
           Restaurant Photos * (3-10 images)
         </Label>
-        <p className="text-sm text-muted-foreground mb-2">Square format preferred • 800×800px or larger • JPG/PNG</p>
+        <p className="text-sm text-muted-foreground mb-2">4:3 aspect ratio • 800×600px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={onChange}
@@ -45,7 +45,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
           <li>• Include a mix of food photos, interior shots, and exterior views</li>
           <li>• Use good lighting - natural light works best for food photography</li>
           <li>• Show your restaurant's personality and atmosphere</li>
-          <li>• Recommended: Square format at 800×800px for consistent display</li>
+          <li>• Recommended: 4:3 aspect ratio at 800×600px for consistent gallery display</li>
           <li>• Avoid blurry or poorly lit photos</li>
         </ul>
       </div>
