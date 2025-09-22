@@ -80,7 +80,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
         <Label className="text-base font-medium">
           About Section Image *
         </Label>
-        <p className="text-sm text-muted-foreground mb-2">Portrait or square format • 800×1200px or larger • JPG/PNG</p>
+        <p className="text-sm text-muted-foreground mb-2">Portrait or landscape • 800×1200px (portrait) or 1200×800px (landscape) • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
             onUpload={handleImageUpload}
@@ -91,9 +91,6 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
         </div>
         <p className="text-sm text-muted-foreground mt-1">
           A photo of the restaurant, owner, or signature dish that represents your story
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Recommended size: Landscape 3:2 ratio (min. 1600×1067px)
         </p>
       </div>
     </div>
