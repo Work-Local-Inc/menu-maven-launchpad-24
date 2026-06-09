@@ -32,7 +32,7 @@ export interface OptimizedImageData {
 const categories = [
   { value: 'popular-dishes', label: 'Popular Dishes', sizing: '1200×900px landscape' },
   { value: 'gallery', label: 'Gallery', sizing: '1600px max, mixed orientations' },
-  { value: 'deals', label: 'Deals', sizing: '1200×900px landscape' },
+  { value: 'deals', label: 'Deals', sizing: '1600×1200px, safe zone 1440×1040px (80px margin)' },
   { value: 'menu', label: 'Menu', sizing: '1600px high-res' },
 ];
 
