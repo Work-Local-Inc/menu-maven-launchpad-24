@@ -102,6 +102,9 @@ export function EditableDishes({ data, onChange }: EditableDishesProps) {
                 </div>
                 <div>
                   <Label htmlFor={`dish_desc_${dish.id}`}>Description *</Label>
+                  <p className="text-sm text-muted-foreground mt-1 mb-1">
+                    Recommended: 80 to 90 characters. Maximum: 105 characters. Anything over 105 characters may be cut off on mobile.
+                  </p>
                   <Textarea
                     id={`dish_desc_${dish.id}`}
                     value={dish.description}

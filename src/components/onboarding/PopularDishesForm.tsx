@@ -102,6 +102,9 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
                 <Label className="text-base font-medium">
                   Description *
                 </Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Recommended: 80 to 90 characters. Maximum: 105 characters. Anything over 105 characters may be cut off on mobile.
+                </p>
                 <Textarea
                   placeholder="Describe the dish, ingredients, what makes it special..."
                   value={dish.description}
