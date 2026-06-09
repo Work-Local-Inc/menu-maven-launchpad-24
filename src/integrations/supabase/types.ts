@@ -645,12 +645,9 @@ export type Database = {
       }
     }
     Functions: {
-      generate_slug: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      generate_slug: { Args: { input_text: string }; Returns: string }
       get_automation_logs: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           error_message: string
