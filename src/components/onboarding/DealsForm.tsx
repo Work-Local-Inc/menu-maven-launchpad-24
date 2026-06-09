@@ -94,7 +94,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
 
             <div>
               <Label className="text-base font-medium">Deal Image</Label>
-              <p className="text-sm text-muted-foreground mb-2">4:3 aspect ratio recommended • 800×600px or larger • JPG/PNG</p>
+              <p className="text-sm text-muted-foreground mb-2">1600×1200px • 4:3 ratio • safe zone: 1440×1040px (80px margin) • JPG/PNG</p>
               <div className="mt-2">
                 <ImageUpload
                   onUpload={(files) => handleImageUpload(index, files)}
