@@ -101,6 +101,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
                   maxFiles={1}
                   currentFiles={deal.image ? [deal.image] : []}
                   label="Upload an image for this deal"
+                  fitKey={`deal:${index}`}
                 />
               </div>
             </div>

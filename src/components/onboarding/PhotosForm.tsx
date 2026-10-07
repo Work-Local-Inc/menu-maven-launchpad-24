@@ -27,6 +27,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
             currentFiles={data}
             maxFiles={10}
             label="Upload restaurant photos"
+            fitKey="photos"
           />
         </div>
       </div>
