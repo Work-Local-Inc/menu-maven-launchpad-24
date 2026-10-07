@@ -120,8 +120,8 @@ export function ImageUpload({
           </div>
           <p className="text-xs text-muted-foreground">
             {fit === "cover"
-              ? `Edges may be trimmed to fill ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — keep the important part centred.`
-              : `The whole photo is shown inside ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — empty bars may appear.`}
+              ? `Edges may be trimmed to fill a ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — keep the important part centred.`
+              : `The whole photo is shown inside a ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — empty bars may appear.`}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {currentFiles.map((file, index) => (
