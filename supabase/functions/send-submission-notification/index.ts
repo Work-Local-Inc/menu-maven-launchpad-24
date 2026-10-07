@@ -1,6 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 import { Resend } from "npm:resend@2.0.0";
+import { encodeBase64 } from "jsr:@std/encoding@1/base64";
+
+// Older submissions stored FAQs as "...\n\nFAQs:\n[json]" inside comments
+function splitLegacyFaqs(comments?: string | null) {
+  if (!comments) return { comments: "", faqs: [] as { question: string; answer: string }[] };
+  const idx = comments.search(/(^|\n)FAQs:\s*\n?\s*\[/);
+  if (idx === -1) return { comments, faqs: [] };
+  try {
+    const parsed = JSON.parse(comments.slice(comments.indexOf("[", idx)));
+    return { comments: comments.slice(0, idx).trim(), faqs: Array.isArray(parsed) ? parsed.map((f: any) => ({ question: String(f.question || ""), answer: String(f.answer || "") })) : [] };
+  } catch { return { comments, faqs: [] }; }
+}
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -44,15 +56,25 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Fetch related data
-    const [dishesResult, dealsResult, photosResult] = await Promise.all([
+    const [dishesResult, dealsResult, photosResult, menusResult, faqsResult] = await Promise.all([
       supabase.from('restaurant_dishes').select('*').eq('restaurant_submission_id', submissionId).order('display_order'),
       supabase.from('restaurant_deals').select('*').eq('restaurant_submission_id', submissionId).order('display_order'),
-      supabase.from('restaurant_photos').select('*').eq('restaurant_submission_id', submissionId).order('display_order')
+      supabase.from('restaurant_photos').select('*').eq('restaurant_submission_id', submissionId).order('display_order'),
+      supabase.from('restaurant_menus').select('*').eq('restaurant_submission_id', submissionId).order('display_order'),
+      supabase.from('restaurant_faqs').select('*').eq('restaurant_submission_id', submissionId).order('display_order'),
     ]);
+    const legacy = splitLegacyFaqs(submission.comments);
+    const tableFaqs = (faqsResult.data || []).map((f: any) => ({ question: f.question, answer: f.answer }));
+    const seen = new Set(tableFaqs.map((f: any) => f.question.trim().toLowerCase()));
+    const allFaqs = [...tableFaqs, ...legacy.faqs.filter((f) => !seen.has(f.question.trim().toLowerCase()))];
 
     // Construct complete JSON payload
     const completeSubmission = {
       ...submission,
+      comments: legacy.comments,
+      image_display_note: "image_fit / image_display: 'cover' = cropping allowed, 'contain' = show the full image, never crop",
+      menus: menusResult.data || [],
+      faqs: allFaqs,
       dishes: dishesResult.data || [],
       deals: dealsResult.data || [],
       photos: photosResult.data || [],
@@ -80,6 +102,8 @@ const handler = async (req: Request): Promise<Response> => {
           <li>Popular Dishes: ${completeSubmission.dishes.length}</li>
           <li>Special Deals: ${completeSubmission.deals.length}</li>
           <li>Photos: ${completeSubmission.photos.length}</li>
+          <li>Menus: ${completeSubmission.menus.length}</li>
+          <li>FAQs: ${completeSubmission.faqs.length}</li>
         </ul>
         
         <p>The complete submission data is attached as a JSON file.</p>
@@ -98,7 +122,7 @@ const handler = async (req: Request): Promise<Response> => {
       attachments: [
         {
           filename: `${submission.restaurant_name.replace(/[^a-zA-Z0-9]/g, '_')}_submission.json`,
-          content: Buffer.from(JSON.stringify(completeSubmission, null, 2)).toString('base64'),
+          content: encodeBase64(new TextEncoder().encode(JSON.stringify(completeSubmission, null, 2))),
         }
       ]
     });
