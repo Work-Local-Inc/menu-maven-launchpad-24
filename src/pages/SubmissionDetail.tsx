@@ -8,7 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { downloadSubmissionJson } from "@/utils/downloadSubmissionJson";
+import { downloadSubmissionJson, downloadJsonFile } from "@/utils/downloadSubmissionJson";
+import { fetchSubmissionBundle, type Faq } from "@/lib/submissionBundle";
+import { fitLabel } from "@/lib/imageFit";
 import { EditableBusinessInfo } from "@/components/edit/EditableBusinessInfo";
 import { EditableAboutSection } from "@/components/edit/EditableAboutSection";
 import { EditableDishes } from "@/components/edit/EditableDishes";
@@ -29,63 +31,38 @@ export default function SubmissionDetail() {
   const [dishes, setDishes] = useState<any[]>([]);
   const [photos, setPhotos] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
+  const [menus, setMenus] = useState<any[]>([]);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [revisions, setRevisions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+
+  const loadAll = async (sid: string) => {
+    const b = await fetchSubmissionBundle(sid);
+    const { data: revs } = await (supabase as any)
+      .from('restaurant_submission_revisions')
+      .select('id, source, changed_fields, changed_lists, snapshot, created_at')
+      .eq('restaurant_submission_id', sid)
+      .order('created_at', { ascending: false });
+    const sub = { ...b.submission, comments: b.cleanComments };
+    setSubmission(sub);
+    setDishes(b.dishes);
+    setPhotos(b.photos);
+    setDeals(b.deals);
+    setMenus(b.menus);
+    setFaqs(b.faqs);
+    setRevisions(revs || []);
+    setEditData({ ...sub, dishes: b.dishes, deals: b.deals });
+  };
 
   useEffect(() => {
     const fetchSubmissionData = async () => {
       if (!id) return;
       
       try {
-        // Fetch submission details
-        const { data: submissionData, error: submissionError } = await supabase
-          .from('restaurant_submissions')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (submissionError) throw submissionError;
-
-        // Fetch dishes
-        const { data: dishesData, error: dishesError } = await supabase
-          .from('restaurant_dishes')
-          .select('*')
-          .eq('restaurant_submission_id', id)
-          .order('display_order');
-
-        if (dishesError) throw dishesError;
-
-        // Fetch photos
-        const { data: photosData, error: photosError } = await supabase
-          .from('restaurant_photos')
-          .select('*')
-          .eq('restaurant_submission_id', id)
-          .order('display_order');
-
-        if (photosError) throw photosError;
-
-        // Fetch deals
-        const { data: dealsData, error: dealsError } = await supabase
-          .from('restaurant_deals')
-          .select('*')
-          .eq('restaurant_submission_id', id)
-          .order('display_order');
-
-        if (dealsError) throw dealsError;
-
-        setSubmission(submissionData);
-        setDishes(dishesData || []);
-        setPhotos(photosData || []);
-        setDeals(dealsData || []);
-        
-        // Initialize edit data
-        setEditData({
-          ...submissionData,
-          dishes: dishesData || [],
-          deals: dealsData || []
-        });
+        await loadAll(id);
       } catch (error) {
         console.error('Error fetching submission:', error);
         toast({
@@ -179,110 +156,33 @@ export default function SubmissionDetail() {
     
     setSaving(true);
     try {
-      // Update main submission data
-      const { error: submissionError } = await supabase
-        .from('restaurant_submissions')
-        .update({
-          restaurant_name: editData.restaurant_name,
-          address: editData.address,
-          email: editData.email,
-          phone: editData.phone,
-          website: editData.website,
-          online_ordering_url: editData.online_ordering_url,
-          founded_year: editData.founded_year,
-          story: editData.story,
-          owner_quote: editData.owner_quote,
-          hours: editData.hours,
-          delivery_areas: editData.delivery_areas,
-          delivery_instructions: editData.delivery_instructions,
-          instagram: editData.instagram,
-          facebook: editData.facebook,
-          twitter: editData.twitter,
-          comments: editData.comments,
-        })
-        .eq('id', submission.id);
+      const keys = ['restaurant_name','address','email','phone','website','online_ordering_url','founded_year','story',
+        'owner_quote','hours','delivery_areas','delivery_instructions','instagram','facebook','twitter','comments'];
+      const fields: Record<string, any> = {};
+      keys.forEach(k => { fields[k] = editData[k] ?? null; });
+      const clean = (list: any[], ok: (x: any) => boolean) => list.filter(ok);
+      const lists = {
+        dishes: clean(editData.dishes || [], (d) => d.name?.trim() || d.description?.trim()).map((d: any) => ({
+          name: d.name, description: d.description, image_url: d.image_url || null, image_fit: d.image_fit || 'cover',
+        })),
+        deals: clean(editData.deals || [], (d) => d.title?.trim() || d.description?.trim()).map((d: any) => ({
+          title: d.title, description: d.description, image_url: d.image_url || null, image_fit: d.image_fit || 'cover',
+        })),
+        // Also moves any older FAQs that were stored inside comments into proper FAQ records
+        faqs: faqs.map(f => ({ question: f.question, answer: f.answer })),
+      };
+      // Single transaction with a revision snapshot: a failure leaves the record untouched
+      const { error } = await (supabase as any).rpc('save_restaurant_submission', {
+        p_id: submission.id, p_fields: fields, p_lists: lists, p_source: 'admin_edit',
+      });
+      if (error) throw error;
 
-      if (submissionError) throw submissionError;
-
-      // Handle dishes updates
-      if (editData.dishes) {
-        // Delete existing dishes
-        await supabase
-          .from('restaurant_dishes')
-          .delete()
-          .eq('restaurant_submission_id', submission.id);
-
-        // Insert updated dishes (only non-empty ones)
-        const validDishes = editData.dishes.filter((dish: any) => dish.name.trim() && dish.description.trim());
-        if (validDishes.length > 0) {
-          const dishesForInsert = validDishes.map((dish: any, index: number) => ({
-            ...dish,
-            id: dish.id.startsWith('temp_') ? undefined : dish.id, // Remove temp IDs
-            restaurant_submission_id: submission.id,
-            display_order: index + 1
-          }));
-
-          const { error: dishesError } = await supabase
-            .from('restaurant_dishes')
-            .insert(dishesForInsert);
-
-          if (dishesError) throw dishesError;
-        }
-      }
-
-      // Handle deals updates
-      if (editData.deals) {
-        // Delete existing deals
-        await supabase
-          .from('restaurant_deals')
-          .delete()
-          .eq('restaurant_submission_id', submission.id);
-
-        // Insert updated deals (only non-empty ones)
-        const validDeals = editData.deals.filter((deal: any) => deal.title.trim() && deal.description.trim());
-        if (validDeals.length > 0) {
-          const dealsForInsert = validDeals.map((deal: any, index: number) => ({
-            ...deal,
-            id: deal.id.startsWith('temp_') ? undefined : deal.id, // Remove temp IDs
-            restaurant_submission_id: submission.id,
-            display_order: index + 1
-          }));
-
-          const { error: dealsError } = await supabase
-            .from('restaurant_deals')
-            .insert(dealsForInsert);
-
-          if (dealsError) throw dealsError;
-        }
-      }
-
-      // Refresh data
-      const { data: updatedSubmission } = await supabase
-        .from('restaurant_submissions')
-        .select('*')
-        .eq('id', submission.id)
-        .single();
-
-      const { data: updatedDishes } = await supabase
-        .from('restaurant_dishes')
-        .select('*')
-        .eq('restaurant_submission_id', submission.id)
-        .order('display_order');
-
-      const { data: updatedDeals } = await supabase
-        .from('restaurant_deals')
-        .select('*')
-        .eq('restaurant_submission_id', submission.id)
-        .order('display_order');
-
-      setSubmission(updatedSubmission);
-      setDishes(updatedDishes || []);
-      setDeals(updatedDeals || []);
+      await loadAll(submission.id);
       setIsEditing(false);
 
       toast({
         title: "Changes Saved",
-        description: "Submission updated successfully.",
+        description: "Submission updated. The previous version is kept in revision history.",
       });
     } catch (error) {
       console.error('Save error:', error);
@@ -499,9 +399,10 @@ export default function SubmissionDetail() {
                           <img 
                             src={dish.image_url} 
                             alt={dish.name}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
+                            className={`w-full h-32 rounded-lg mb-2 bg-muted ${dish.image_fit === 'contain' ? 'object-contain' : 'object-cover'}`}
                           />
                         )}
+                        {dish.image_url && <Badge variant="outline" className="mb-2">{fitLabel(dish.image_fit)}</Badge>}
                         <h4 className="font-semibold mb-2">{dish.name}</h4>
                         <p className="text-sm text-muted-foreground">{dish.description}</p>
                       </div>
@@ -536,9 +437,10 @@ export default function SubmissionDetail() {
                           <img 
                             src={deal.image_url} 
                             alt={deal.title}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
+                            className={`w-full h-32 rounded-lg mb-2 bg-muted ${deal.image_fit === 'contain' ? 'object-contain' : 'object-cover'}`}
                           />
                         )}
+                        {deal.image_url && <Badge variant="outline" className="mb-2">{fitLabel(deal.image_fit)}</Badge>}
                         <h4 className="font-semibold mb-2">{deal.title}</h4>
                         <p className="text-sm text-muted-foreground">{deal.description}</p>
                       </div>
@@ -552,28 +454,29 @@ export default function SubmissionDetail() {
           </CardContent>
         </Card>
 
-        {/* Menu PDF */}
+        {/* Menus */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Menu PDF</CardTitle>
+            <CardTitle>Menus ({menus.length || (submission.menu_pdf_url ? 1 : 0)})</CardTitle>
           </CardHeader>
-          <CardContent>
-            {submission.menu_pdf_url ? (
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+          <CardContent className="space-y-3">
+            {(menus.length ? menus : submission.menu_pdf_url ? [{ id: 'legacy', menu_name: 'Restaurant Menu', category: 'legacy', menu_url: submission.menu_pdf_url }] : []).map((m: any) => (
+              <div key={m.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
-                  <p className="font-medium">Restaurant Menu</p>
-                  <p className="text-sm text-muted-foreground">PDF Document</p>
+                  <p className="font-medium">{m.menu_name}</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {m.category === 'custom' ? m.custom_category_name || 'Custom' : m.category} • {/\.pdf($|\?)/i.test(m.menu_url) ? 'PDF' : 'Image'}
+                  </p>
                 </div>
                 <Button variant="outline" size="sm" asChild>
-                  <a href={submission.menu_pdf_url} target="_blank" rel="noopener noreferrer">
+                  <a href={m.menu_url} target="_blank" rel="noopener noreferrer">
                     <Download className="w-4 h-4 mr-2" />
-                    Download
+                    Open
                   </a>
                 </Button>
               </div>
-            ) : (
-              <p className="text-muted-foreground">No menu uploaded yet.</p>
-            )}
+            ))}
+            {!menus.length && !submission.menu_pdf_url && <p className="text-muted-foreground">No menu uploaded yet.</p>}
           </CardContent>
         </Card>
 
@@ -618,7 +521,7 @@ export default function SubmissionDetail() {
         {/* Photos */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Restaurant Photos ({photos.length})</CardTitle>
+            <CardTitle>Restaurant Photos ({photos.length}){photos[0] && <Badge variant="outline" className="ml-2 align-middle">{fitLabel(photos[0].image_fit)}</Badge>}</CardTitle>
           </CardHeader>
           <CardContent>
             {photos.length > 0 ? (
@@ -628,7 +531,7 @@ export default function SubmissionDetail() {
                     <img 
                       src={photo.image_url} 
                       alt={`Restaurant photo ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                      className={`w-full h-full bg-muted ${photo.image_fit === 'contain' ? 'object-contain' : 'object-cover'} hover:scale-105 transition-transform duration-200`}
                     />
                   </div>
                 ))}
@@ -683,6 +586,51 @@ export default function SubmissionDetail() {
                 )}
               </>
             )}
+          </CardContent>
+        </Card>
+
+        {/* FAQs */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>FAQs ({faqs.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {faqs.length === 0 && <p className="text-muted-foreground">No FAQs added.</p>}
+            {faqs.some(f => f.source === 'legacy_comments') && (
+              <p className="text-xs text-muted-foreground">Some of these were saved inside the comments by an older version of the form. Saving an edit stores them as proper FAQs.</p>
+            )}
+            {faqs.map((f, i) => (
+              <div key={i}>
+                <p className="font-medium">{f.question}</p>
+                <p className="text-sm text-muted-foreground">{f.answer}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Revision history */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Revision History ({revisions.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {revisions.length === 0 && <p className="text-muted-foreground">No changes since the first submission.</p>}
+            {revisions.map((r) => (
+              <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 p-3 border rounded-lg text-sm">
+                <div>
+                  <p className="font-medium">
+                    {new Date(r.created_at).toLocaleString()} • {r.source === 'admin_edit' ? 'Edited by our team' : 'Re-submitted by restaurant'}
+                  </p>
+                  <p className="text-muted-foreground">
+                    Changed: {[...(r.changed_fields || []), ...(r.changed_lists || [])].map((k: string) => k.replace(/_/g, ' ')).join(', ') || 'nothing'}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => downloadJsonFile(r.snapshot, `${String(submission.restaurant_name).replace(/[^a-z0-9]/gi, '_').toLowerCase()}_before_${r.created_at.slice(0, 19).replace(/[:T]/g, '-')}.json`)}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Version before this change
+                </Button>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
