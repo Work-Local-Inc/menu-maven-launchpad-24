@@ -559,7 +559,12 @@ export default function RestaurantOnboarding() {
             </p>
           </div>
 
-          {renderCurrentForm()}
+          <ImageFitContext.Provider value={{
+            fits: formData.imageFits,
+            setFit: (key, fit) => setFormData(prev => ({ ...prev, imageFits: { ...prev.imageFits, [key]: fit } })),
+          }}>
+            {renderCurrentForm()}
+          </ImageFitContext.Provider>
 
           <div className="flex justify-between mt-8 pt-6 border-t">
             <Button
