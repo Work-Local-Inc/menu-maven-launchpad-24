@@ -93,6 +93,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
                       currentFiles={dish.image ? [dish.image] : []}
                       maxFiles={1}
                       label="Upload dish photo"
+                      fitKey={`dish:${index}`}
                     />
                   </div>
                 </div>

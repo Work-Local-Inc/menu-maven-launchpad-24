@@ -25,6 +25,7 @@ import heroImage from "@/assets/hero-bg.jpg";
 const menuLogo = "https://i.imgur.com/AYyrnpP.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useFileUpload } from "@/hooks/useFileUpload";
+import { ImageFitContext, type ImageFit } from "@/lib/imageFit";
 
 export interface RestaurantData {
   businessInfo: {
@@ -86,6 +87,10 @@ export interface RestaurantData {
     question: string;
     answer: string;
   }>;
+  /** Crop preference per image slot: logo, hero, about, section:<id>, dish:<i>, deal:<i>, photos */
+  imageFits: Record<string, ImageFit>;
+  /** Things to clear on the existing record when updating (instead of leaving unchanged) */
+  removals: string[];
 }
 
 const initialData: RestaurantData = {
@@ -126,6 +131,8 @@ const initialData: RestaurantData = {
     paragraphFont: "",
   },
   faqs: [],
+  imageFits: {},
+  removals: [],
 };
 
 const steps = [
@@ -214,6 +221,7 @@ export default function RestaurantOnboarding() {
       let aboutImageUrl = null;
       let menuPdfUrl = null; // Legacy compatibility
       const photoUrls: string[] = [];
+      const fits = formData.imageFits;
       const dishImageUrls: { [key: number]: string } = {};
       const dealImageUrls: { [key: number]: string } = {};
 
@@ -298,6 +306,7 @@ export default function RestaurantOnboarding() {
             title: section.title,
             description: section.description,
             image_url: customSectionImageUrls[section.id] || null,
+            image_fit: fits[`section:${section.id}`] || 'cover',
             position: section.position
           })),
           menu_pdf_url: menuUrls.length > 0 ? menuUrls[0].url : null,
@@ -310,116 +319,61 @@ export default function RestaurantOnboarding() {
           comments: formData.social.comments,
       };
 
-      let submission: { id: string };
-      let submissionError: any = null;
+      const lists: Record<string, any[]> = {
+        dishes: formData.popularDishes.map((dish, i) => ({
+          name: dish.name, description: dish.description,
+          image_url: dishImageUrls[i] || null, image_fit: fits[`dish:${i}`] || 'cover',
+        })),
+        deals: formData.deals.map((deal, i) => ({
+          title: deal.title, description: deal.description,
+          image_url: dealImageUrls[i] || null, image_fit: fits[`deal:${i}`] || 'cover',
+        })),
+        photos: photoUrls.map((url) => ({ image_url: url, image_fit: fits.photos || 'cover' })),
+        menus: menuUrls.map((m) => ({
+          category: m.category, custom_category_name: m.customCategoryName || null, menu_name: m.name, menu_url: m.url,
+        })),
+        faqs: formData.faqs.filter(f => f.question || f.answer).map(f => ({ question: f.question, answer: f.answer })),
+      };
+
+      const imageDisplay: Record<string, string> = {};
+      if (logoUrl) imageDisplay.logo = fits.logo || 'cover';
+      if (heroImageUrl) imageDisplay.hero = fits.hero || 'cover';
+      if (aboutImageUrl) imageDisplay.about = fits.about || 'cover';
+
+      let fields: Record<string, any>;
+      let listsToSave: Record<string, any[]>;
+      const removals = new Set(formData.removals);
       if (existingId) {
-        // Keep the one record: only overwrite fields that were actually filled in this time
-        const patch: Record<string, any> = {};
+        // Blank = leave unchanged. Ticked "remove" = clear it. Filled in = replace it.
+        fields = {};
         Object.entries(payload).forEach(([k, v]) => {
-          if (k === 'custom_sections' ? (v as any[]).length > 0 : v !== null && v !== '') patch[k] = v;
+          if (k === 'custom_sections' ? (v as any[]).length > 0 : v !== null && v !== '') fields[k] = v;
+          else if (removals.has(k)) fields[k] = null;
         });
-        const res = await supabase.from('restaurant_submissions').update(patch as any).eq('id', existingId).select('id').single();
-        submission = res.data as any; submissionError = res.error;
-        if (!submissionError) {
-          const replace = async (table: any, has: boolean) => {
-            if (has) await supabase.from(table).delete().eq('restaurant_submission_id', existingId);
-          };
-          await replace('restaurant_dishes', formData.popularDishes.length > 0);
-          await replace('restaurant_deals', formData.deals.length > 0);
-          await replace('restaurant_photos', photoUrls.length > 0);
-          await replace('restaurant_menus', menuUrls.length > 0);
-          await replace('restaurant_faqs', formData.faqs.length > 0);
-        }
+        const { data: existing } = await supabase.from('restaurant_submissions').select('*').eq('id', existingId).single();
+        const display = { ...((existing as any)?.image_display || {}), ...imageDisplay };
+        if (removals.has('logo_url')) delete display.logo;
+        if (removals.has('hero_image_url')) delete display.hero;
+        if (removals.has('about_image_url')) delete display.about;
+        fields.image_display = display;
+        listsToSave = {};
+        Object.entries(lists).forEach(([k, v]) => {
+          if (v.length > 0) listsToSave[k] = v;
+          else if (removals.has(k)) listsToSave[k] = [];
+        });
+        if (removals.has('menus') && !listsToSave.menus) fields.menu_pdf_url = null;
       } else {
-        const res = await supabase.from('restaurant_submissions').insert(payload as any).select('id').single();
-        submission = res.data as any; submissionError = res.error;
+        fields = { ...payload, image_display: imageDisplay };
+        listsToSave = lists;
       }
 
-      if (submissionError) throw submissionError;
+      // One database transaction: either everything is saved (with a revision snapshot) or nothing changes
+      const { data: savedId, error: saveError } = await (supabase as any).rpc('save_restaurant_submission', {
+        p_id: existingId || null, p_fields: fields, p_lists: listsToSave, p_source: 'onboarding',
+      });
+      if (saveError) throw saveError;
+      const submission = { id: savedId as string };
 
-      // Insert dishes
-      if (formData.popularDishes.length > 0) {
-        const dishesData = formData.popularDishes.map((dish, index) => ({
-          restaurant_submission_id: submission.id,
-          name: dish.name,
-          description: dish.description,
-          image_url: dishImageUrls[index] || null,
-          display_order: index,
-        }));
-
-        const { error: dishesError } = await supabase
-          .from('restaurant_dishes')
-          .insert(dishesData);
-
-        if (dishesError) throw dishesError;
-      }
-
-      // Insert deals
-      if (formData.deals.length > 0) {
-        const dealsData = formData.deals.map((deal, index) => ({
-          restaurant_submission_id: submission.id,
-          title: deal.title,
-          description: deal.description,
-          image_url: dealImageUrls[index] || null,
-          display_order: index,
-        }));
-
-        const { error: dealsError } = await supabase
-          .from('restaurant_deals')
-          .insert(dealsData);
-
-        if (dealsError) throw dealsError;
-      }
-
-      // Insert photos
-      if (photoUrls.length > 0) {
-        const photosData = photoUrls.map((url, index) => ({
-          restaurant_submission_id: submission.id,
-          image_url: url,
-          display_order: index,
-        }));
-
-        const { error: photosError } = await supabase
-          .from('restaurant_photos')
-          .insert(photosData);
-
-        if (photosError) throw photosError;
-      }
-
-      // Insert menus
-      if (menuUrls.length > 0) {
-        const menusData = menuUrls.map((menu, index) => ({
-          restaurant_submission_id: submission.id,
-          category: menu.category,
-          custom_category_name: menu.customCategoryName || null,
-          menu_name: menu.name,
-          menu_url: menu.url,
-          display_order: index,
-        }));
-
-        const { error: menusError } = await supabase
-          .from('restaurant_menus')
-          .insert(menusData);
-
-        if (menusError) throw menusError;
-      }
-
-      // Insert FAQs
-      if (formData.faqs.length > 0) {
-        const faqsData = formData.faqs.map((faq, index) => ({
-          restaurant_submission_id: submission.id,
-          question: faq.question,
-          answer: faq.answer,
-          display_order: index,
-        }));
-
-        const { error: faqsError } = await (supabase as any)
-          .from('restaurant_faqs')
-          .insert(faqsData);
-
-        if (faqsError) throw faqsError;
-      }
-      
       // Send email notification in the background (don't block success)
       try {
         await supabase.functions.invoke('send-submission-notification', {
@@ -436,7 +390,7 @@ export default function RestaurantOnboarding() {
         { label: "Deals", n: formData.deals.length },
         { label: "Menus", n: menuUrls.length },
         { label: "Gallery photos", n: photoUrls.length },
-        { label: "FAQs", n: formData.faqs.length },
+        { label: "FAQs", n: lists.faqs.length },
         { label: "Custom sections", n: formData.about.customSections.length },
       ];
       const files = [logoUrl, heroImageUrl, aboutImageUrl].filter(Boolean).length
@@ -538,7 +492,7 @@ export default function RestaurantOnboarding() {
           />
         );
       case 10:
-        return <ReviewStep data={formData} onEdit={setCurrentStep} />;
+        return <ReviewStep data={formData} onEdit={setCurrentStep} onRemovalsChange={(r) => updateFormData('removals', r)} />;
       default:
         return null;
     }
@@ -605,7 +559,12 @@ export default function RestaurantOnboarding() {
             </p>
           </div>
 
-          {renderCurrentForm()}
+          <ImageFitContext.Provider value={{
+            fits: formData.imageFits,
+            setFit: (key, fit) => setFormData(prev => ({ ...prev, imageFits: { ...prev.imageFits, [key]: fit } })),
+          }}>
+            {renderCurrentForm()}
+          </ImageFitContext.Provider>
 
           <div className="flex justify-between mt-8 pt-6 border-t">
             <Button

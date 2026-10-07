@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useImageFitContext, type ImageFit } from "@/lib/imageFit";
 
 interface ImageUploadProps {
   onUpload: (files: File[]) => void;
@@ -11,6 +12,8 @@ interface ImageUploadProps {
   label?: string;
   /** CSS aspect ratio of the frame the image will be shown in, e.g. "4/3" */
   aspect?: string;
+  /** Key under which the crop preference is saved (requires ImageFitContext) */
+  fitKey?: string;
 }
 
 export function ImageUpload({ 
@@ -20,9 +23,13 @@ export function ImageUpload({
   className,
   label = "Upload Images",
   aspect = "4/3",
+  fitKey,
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false);
-  const [fit, setFit] = useState<"cover" | "contain">("cover");
+  const ctx = useImageFitContext();
+  const [localFit, setLocalFit] = useState<ImageFit>("cover");
+  const fit: ImageFit = ctx && fitKey ? ctx.fits[fitKey] || "cover" : localFit;
+  const setFit = (f: ImageFit) => (ctx && fitKey ? ctx.setFit(fitKey, f) : setLocalFit(f));
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -110,7 +117,7 @@ export function ImageUpload({
       {currentFiles.length > 0 && (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-muted-foreground">Preview on your site:</span>
+            <span className="text-muted-foreground">How should we show this on your site?</span>
             <Button type="button" size="sm" variant={fit === "cover" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setFit("cover")}>
               Cropping allowed
             </Button>
@@ -122,6 +129,7 @@ export function ImageUpload({
             {fit === "cover"
               ? `Edges may be trimmed to fill a ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — keep the important part centred.`
               : `The whole photo is shown inside a ${aspect === "auto" ? "flexible" : aspect.replace("/", ":")} frame — empty bars may appear.`}
+            {ctx && fitKey ? " Your choice is sent to our builder." : ""}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {currentFiles.map((file, index) => (

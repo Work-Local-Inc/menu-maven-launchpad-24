@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/ImageUpload";
+import { ImageFitContext } from "@/lib/imageFit";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { Trash2, Plus } from "lucide-react";
 
 interface Deal {
@@ -50,14 +52,22 @@ export function EditableDeals({ data, onChange }: EditableDealsProps) {
     onChange(updatedDeals);
   };
 
-  const handleImageUpload = (dealId: string, files: File[]) => {
+  const { uploadImage } = useFileUpload();
+  const handleImageUpload = async (dealId: string, files: File[]) => {
     setImageFiles(prev => ({
       ...prev,
       [dealId]: files
     }));
+    const url = files[0] ? await uploadImage(files[0], `deals/${Date.now()}-edit`) : undefined;
+    onChange(data.map((x: any) => x.id === dealId ? { ...x, image_url: url ?? x.image_url } : x));
+  };
+  const fitCtx = {
+    fits: Object.fromEntries(data.map((x: any) => [x.id, x.image_fit || 'cover'])),
+    setFit: (key: string, fit: string) => onChange(data.map((x: any) => x.id === key ? { ...x, image_fit: fit } : x)),
   };
 
   return (
+    <ImageFitContext.Provider value={fitCtx as any}>
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Special Deals & Offers ({data.length})</h3>
@@ -125,6 +135,7 @@ export function EditableDeals({ data, onChange }: EditableDealsProps) {
                   )}
                   <ImageUpload
                     onUpload={(files) => handleImageUpload(deal.id, files)}
+                    fitKey={deal.id}
                     currentFiles={imageFiles[deal.id] || []}
                     maxFiles={1}
                     label="Upload deal image"
@@ -136,5 +147,6 @@ export function EditableDeals({ data, onChange }: EditableDealsProps) {
         ))}
       </div>
     </div>
+    </ImageFitContext.Provider>
   );
 }
