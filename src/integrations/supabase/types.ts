@@ -231,6 +231,7 @@ export type Database = {
           description: string
           display_order: number
           id: string
+          image_fit: string
           image_url: string | null
           restaurant_submission_id: string
           title: string
@@ -240,6 +241,7 @@ export type Database = {
           description: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url?: string | null
           restaurant_submission_id: string
           title: string
@@ -249,6 +251,7 @@ export type Database = {
           description?: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url?: string | null
           restaurant_submission_id?: string
           title?: string
@@ -261,6 +264,7 @@ export type Database = {
           description: string
           display_order: number
           id: string
+          image_fit: string
           image_url: string | null
           name: string
           restaurant_submission_id: string
@@ -270,6 +274,7 @@ export type Database = {
           description: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url?: string | null
           name: string
           restaurant_submission_id: string
@@ -279,6 +284,7 @@ export type Database = {
           description?: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url?: string | null
           name?: string
           restaurant_submission_id?: string
@@ -383,6 +389,7 @@ export type Database = {
           created_at: string
           display_order: number
           id: string
+          image_fit: string
           image_url: string
           restaurant_submission_id: string
         }
@@ -390,6 +397,7 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url: string
           restaurant_submission_id: string
         }
@@ -397,6 +405,7 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          image_fit?: string
           image_url?: string
           restaurant_submission_id?: string
         }
@@ -410,6 +419,51 @@ export type Database = {
           },
           {
             foreignKeyName: "restaurant_photos_restaurant_submission_id_fkey"
+            columns: ["restaurant_submission_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_submissions_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_submission_revisions: {
+        Row: {
+          changed_fields: string[]
+          changed_lists: string[]
+          created_at: string
+          id: string
+          restaurant_submission_id: string
+          snapshot: Json
+          source: string
+        }
+        Insert: {
+          changed_fields?: string[]
+          changed_lists?: string[]
+          created_at?: string
+          id?: string
+          restaurant_submission_id: string
+          snapshot: Json
+          source?: string
+        }
+        Update: {
+          changed_fields?: string[]
+          changed_lists?: string[]
+          created_at?: string
+          id?: string
+          restaurant_submission_id?: string
+          snapshot?: Json
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_submission_revisions_restaurant_submission_id_fkey"
+            columns: ["restaurant_submission_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_submission_revisions_restaurant_submission_id_fkey"
             columns: ["restaurant_submission_id"]
             isOneToOne: false
             referencedRelation: "restaurant_submissions_public"
@@ -433,6 +487,7 @@ export type Database = {
           hero_image_url: string | null
           hours: string
           id: string
+          image_display: Json
           instagram: string | null
           logo_url: string | null
           menu_pdf_url: string | null
@@ -461,6 +516,7 @@ export type Database = {
           hero_image_url?: string | null
           hours: string
           id?: string
+          image_display?: Json
           instagram?: string | null
           logo_url?: string | null
           menu_pdf_url?: string | null
@@ -489,6 +545,7 @@ export type Database = {
           hero_image_url?: string | null
           hours?: string
           id?: string
+          image_display?: Json
           instagram?: string | null
           logo_url?: string | null
           menu_pdf_url?: string | null
@@ -698,6 +755,11 @@ export type Database = {
           run_date: string
           success: boolean
         }[]
+      }
+      restaurant_submission_bundle: { Args: { p_id: string }; Returns: Json }
+      save_restaurant_submission: {
+        Args: { p_fields: Json; p_id: string; p_lists: Json; p_source?: string }
+        Returns: string
       }
     }
     Enums: {
