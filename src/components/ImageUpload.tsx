@@ -9,6 +9,8 @@ interface ImageUploadProps {
   currentFiles?: File[];
   className?: string;
   label?: string;
+  /** CSS aspect ratio of the frame the image will be shown in, e.g. "4/3" */
+  aspect?: string;
 }
 
 export function ImageUpload({ 
@@ -16,9 +18,11 @@ export function ImageUpload({
   maxFiles = 1, 
   currentFiles = [], 
   className,
-  label = "Upload Images"
+  label = "Upload Images",
+  aspect = "4/3",
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false);
+  const [fit, setFit] = useState<"cover" | "contain">("cover");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -104,30 +108,46 @@ export function ImageUpload({
       />
 
       {currentFiles.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {currentFiles.map((file, index) => (
-            <div key={index} className="relative group">
-              <div className="food-image aspect-square bg-muted flex items-center justify-center">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
-                  className="w-full h-full object-cover"
-                />
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">Preview on your site:</span>
+            <Button type="button" size="sm" variant={fit === "cover" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setFit("cover")}>
+              Cropping allowed
+            </Button>
+            <Button type="button" size="sm" variant={fit === "contain" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setFit("contain")}>
+              Show full image
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {fit === "cover"
+              ? `Edges may be trimmed to fill a ${aspect.replace("/", ":")} frame — keep the important part centred.`
+              : `The whole photo is shown inside a ${aspect.replace("/", ":")} frame — empty bars may appear.`}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {currentFiles.map((file, index) => (
+              <div key={index} className="relative group">
+                <div className="rounded-lg overflow-hidden bg-muted flex items-center justify-center" style={{ aspectRatio: aspect }}>
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className={cn("w-full h-full", fit === "cover" ? "object-cover" : "object-contain")}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                  onClick={() => removeFile(index)}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {file.name} • {(file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeFile(index)}
-              >
-                <X className="w-3 h-3" />
-              </Button>
-              <p className="text-xs text-muted-foreground mt-1 truncate">
-                {file.name}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
