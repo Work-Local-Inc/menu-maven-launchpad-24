@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/ImageUpload";
+import { ImageFitContext } from "@/lib/imageFit";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { Trash2, Plus } from "lucide-react";
 
 interface Dish {
@@ -50,14 +52,22 @@ export function EditableDishes({ data, onChange }: EditableDishesProps) {
     onChange(updatedDishes);
   };
 
-  const handleImageUpload = (dishId: string, files: File[]) => {
+  const { uploadImage } = useFileUpload();
+  const handleImageUpload = async (dishId: string, files: File[]) => {
     setImageFiles(prev => ({
       ...prev,
       [dishId]: files
     }));
+    const url = files[0] ? await uploadImage(files[0], `dishs/${Date.now()}-edit`) : undefined;
+    onChange(data.map((x: any) => x.id === dishId ? { ...x, image_url: url ?? x.image_url } : x));
+  };
+  const fitCtx = {
+    fits: Object.fromEntries(data.map((x: any) => [x.id, x.image_fit || 'cover'])),
+    setFit: (key: string, fit: string) => onChange(data.map((x: any) => x.id === key ? { ...x, image_fit: fit } : x)),
   };
 
   return (
+    <ImageFitContext.Provider value={fitCtx as any}>
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Popular Dishes ({data.length})</h3>
@@ -130,6 +140,7 @@ export function EditableDishes({ data, onChange }: EditableDishesProps) {
                   )}
                   <ImageUpload
                     onUpload={(files) => handleImageUpload(dish.id, files)}
+                    fitKey={dish.id}
                     currentFiles={imageFiles[dish.id] || []}
                     maxFiles={1}
                     label="Upload dish image"
@@ -141,5 +152,6 @@ export function EditableDishes({ data, onChange }: EditableDishesProps) {
         ))}
       </div>
     </div>
+    </ImageFitContext.Provider>
   );
 }
