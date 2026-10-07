@@ -127,6 +127,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
             currentFiles={data.aboutImage ? [data.aboutImage] : []}
             maxFiles={1}
             label="Upload an image for your About section"
+            aspect="auto"
           />
         </div>
         <p className="text-sm text-muted-foreground mt-1">
@@ -226,6 +227,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
                   currentFiles={section.image ? [section.image] : []}
                   maxFiles={1}
                   label="Upload image for this section"
+                  aspect="auto"
                 />
               </div>
             </div>

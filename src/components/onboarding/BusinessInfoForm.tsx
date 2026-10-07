@@ -49,6 +49,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             maxFiles={1}
             currentFiles={data.logo ? [data.logo] : []}
             label="Upload your restaurant logo"
+            aspect="1/1"
           />
         </div>
       </div>
@@ -62,6 +63,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             maxFiles={1}
             currentFiles={data.heroImage ? [data.heroImage] : []}
             label="Upload your hero banner image"
+            aspect="16/9"
           />
         </div>
       </div>
