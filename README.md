@@ -2,8 +2,8 @@
 
 Public optional intake for restaurant websites, with a private staff dashboard.
 
-- Deployment: https://menu-onboarding.netlify.app (Netlify site menu-onboarding).
-- Intended custom hostname: https://onboarding.menu.ca. Its existing Lovable DNS target is unchanged until Netlify management access is restored.
+- Canonical deployment: https://onboarding.menu.ca (Netlify site menu-onboarding).
+- Original Netlify hostname: https://menu-onboarding.netlify.app.
 - Client form: /onboarding. Every field is optional; existing websites/social links and menu files are useful starting material.
 - Staff dashboard: /admin. Only brian@pureconcepts.com is approved. Use its emailed code; no public signup is needed for intake.
 - Lovable project: https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176
@@ -17,7 +17,7 @@ The security migration is `supabase/migrations/20261015185503_secure_client_onbo
 
 ## Security and deployment
 
-Apply the migration, deploy the three onboarding Edge Functions with JWT verification enabled, then merge the reviewed PR to main to trigger the existing Netlify GitHub integration. Manual API publication currently needs the saved Netlify token refreshed (HTTP 401 on 2026-10-15). Include public/_redirects and public/_headers in the build. Keep GitHub/Lovable source synchronized; publishing an old Lovable build would restore stale client behavior.
+Apply the migration, deploy the three onboarding Edge Functions with JWT verification enabled, then merge the reviewed PR to main to trigger the existing Netlify GitHub integration. Netlify management access was restored through user-approved CLI OAuth on 2026-10-15. Use the authenticated CLI; the older `Netlify CLI Token` vault item returned HTTP 401 and has not been replaced. Include public/_redirects and public/_headers in the build. Keep GitHub/Lovable source synchronized; publishing an old Lovable build would restore stale client behavior.
 
 Public applications are create-only via submit_restaurant_application. Existing submissions, child rows, revisions, the public-named legacy view, and staff RPCs require a verified allowlisted account with email OTP authentication. Public users cannot look up or overwrite a restaurant by name. Staff reconcile duplicates. The authorization check reads trusted account data, not editable user metadata.
 
@@ -26,3 +26,7 @@ Uploads permit new UUID-named files only (10 MB maximum with image/PDF MIME rest
 Notification delivery requires a one-use capability returned to the creator, or staff authorization. Login sends are allowlisted and throttled. Both mail functions use onboarding@send.menu.ca, verified on the existing Resend account. Submission notifications retain the existing brian@worklocal.ca recipient; staff sign-in codes go only to the approved pureconcepts mailbox. RESEND_API_KEY and Supabase service keys stay in the Edge Function environment.
 
 Keep the previous Netlify deployment and DNS record as rollback evidence. Never restore anonymous read/update permissions as a rollback. If an application regression occurs, keep the database locked down and forward-fix or temporarily suspend intake. The old client cannot use the secured public save route.
+
+## Custom hostname
+
+Netlify site `11369d9d-e5c1-4773-b248-7c11011d2113` owns `onboarding.menu.ca`. Cloudflare manages DNS with a DNS-only CNAME to `menu-onboarding.netlify.app` (TTL300). Netlify manages the HTTPS certificate. This replaces the former Lovable A record; publish current source through the GitHub integration. The Netlify hostname in notification emails remains valid.
