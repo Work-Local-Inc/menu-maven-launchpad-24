@@ -2,7 +2,8 @@
 
 Public optional intake for restaurant websites, with a private staff dashboard.
 
-- Canonical deployment: https://onboarding.menu.ca (Netlify site menu-onboarding).
+- Deployment: https://menu-onboarding.netlify.app (Netlify site menu-onboarding).
+- Intended custom hostname: https://onboarding.menu.ca. Its existing Lovable DNS target is unchanged until Netlify management access is restored.
 - Client form: /onboarding. Every field is optional; existing websites/social links and menu files are useful starting material.
 - Staff dashboard: /admin. Only brian@pureconcepts.com is approved. Use its emailed code; no public signup is needed for intake.
 - Lovable project: https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176
@@ -16,7 +17,7 @@ The security migration is `supabase/migrations/20261015185503_secure_client_onbo
 
 ## Security and deployment
 
-Apply the migration, deploy the three onboarding Edge Functions with JWT verification enabled, then publish the built dist directory to the existing Netlify site. Include public/_redirects and public/_headers in the build. Keep GitHub/Lovable source synchronized; publishing an old Lovable build would restore stale client behavior.
+Apply the migration, deploy the three onboarding Edge Functions with JWT verification enabled, then merge the reviewed PR to main to trigger the existing Netlify GitHub integration. Manual API publication currently needs the saved Netlify token refreshed (HTTP 401 on 2026-10-15). Include public/_redirects and public/_headers in the build. Keep GitHub/Lovable source synchronized; publishing an old Lovable build would restore stale client behavior.
 
 Public applications are create-only via submit_restaurant_application. Existing submissions, child rows, revisions, the public-named legacy view, and staff RPCs require a verified allowlisted account with email OTP authentication. Public users cannot look up or overwrite a restaurant by name. Staff reconcile duplicates. The authorization check reads trusted account data, not editable user metadata.
 

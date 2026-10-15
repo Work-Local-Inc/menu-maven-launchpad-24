@@ -129,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
         <p>The complete submission data is attached as a JSON file.</p>
 
         <div style="margin: 30px 0;">
-          <a href="https://onboarding.menu.ca/admin/submission/${submissionId}"
+          <a href="https://menu-onboarding.netlify.app/admin/submission/${submissionId}"
              style="background: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Full Details in Admin Dashboard
           </a>
