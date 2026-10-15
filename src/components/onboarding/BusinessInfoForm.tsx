@@ -41,7 +41,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <Label className="text-base font-medium">Restaurant Logo *</Label>
+        <Label className="text-base font-medium">Restaurant Logo</Label>
         <p className="text-sm text-muted-foreground mb-2">Square format recommended • 512×512px or larger • PNG/JPG</p>
         <div className="mt-2">
           <ImageUpload
@@ -56,7 +56,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
       </div>
 
       <div className="mb-6">
-        <Label className="text-base font-medium">Hero Image *</Label>
+        <Label className="text-base font-medium">Hero Image</Label>
         <p className="text-sm text-muted-foreground mb-2">16:9 aspect ratio • 1280×720px or larger • JPG/PNG</p>
         <div className="mt-2">
           <ImageUpload
@@ -73,7 +73,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="name" className="text-base font-medium">
-            Restaurant Name *
+            Restaurant Name
           </Label>
           <Input
             id="name"
@@ -86,11 +86,11 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
 
         <div>
           <Label htmlFor="address" className="text-base font-medium">
-            Full Address *
+            Full Address
           </Label>
           <Input
             id="address"
-            placeholder="123 Main St, City, State 12345"
+            placeholder="123 Main St, Ottawa, ON K1A 0B1"
             value={data.address}
             onChange={(e) => updateField('address', e.target.value)}
             className="mt-2"
@@ -99,7 +99,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
 
         <div>
           <Label htmlFor="email" className="text-base font-medium">
-            Contact Email *
+            Contact Email
           </Label>
           <Input
             id="email"
@@ -138,13 +138,13 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             className="mt-2"
           />
           <p className="text-sm text-muted-foreground mt-1">
-            Your restaurant's main website
+            Already have a website? Share its link so we can start with your existing information.
           </p>
         </div>
 
         <div>
           <Label htmlFor="onlineOrderingUrl" className="text-base font-medium">
-            Online Ordering Platform URL *
+            Online Ordering Platform URL
           </Label>
           <Input
             id="onlineOrderingUrl"
@@ -155,7 +155,7 @@ export function BusinessInfoForm({ data, onChange }: BusinessInfoFormProps) {
             className="mt-2"
           />
           <p className="text-sm text-muted-foreground mt-1">
-            This URL will be used for all "Order Now" and "View Menu" buttons on your site
+            If you have an online menu or ordering page, share the link. We will confirm your new ordering link with you.
           </p>
         </div>
       </div>

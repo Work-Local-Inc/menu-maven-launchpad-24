@@ -1,73 +1,28 @@
-# Welcome to your Lovable project
+# Menu.ca website onboarding
 
-## Project info
+Public optional intake for restaurant websites, with a private staff dashboard.
 
-**URL**: https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176
+- Deployment: https://menu-onboarding.netlify.app (Netlify site menu-onboarding).
+- Intended custom hostname: https://onboarding.menu.ca. Its existing Lovable DNS target is unchanged until Netlify management access is restored.
+- Client form: /onboarding. Every field is optional; existing websites/social links and menu files are useful starting material.
+- Staff dashboard: /admin. Only brian@pureconcepts.com is approved. Use its emailed code; no public signup is needed for intake.
+- Lovable project: https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176
+- Supabase project wuufuewpbgciitslfvbl is shared with unrelated applications. Limit changes to onboarding resources.
 
-## How can I edit this code?
+## Development and checks
 
-There are several ways of editing your application.
+Use Node/npm, `npm ci`, `npm run build`, and `npx tsc --noEmit -p tsconfig.app.json`. Register local development with the fleet and use its .fleet URL; start Vite with `npm run dev -- --host 0.0.0.0`.
 
-**Use Lovable**
+The security migration is `supabase/migrations/20261015185503_secure_client_onboarding.sql`. Run `supabase/tests/onboarding_access.sql` inside BEGIN/ROLLBACK after the migration: temporary QA fixtures and account verification are rolled back. These tests send no emails. Do not submit live test applications or request real login codes without authorization.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176) and start prompting.
+## Security and deployment
 
-Changes made via Lovable will be committed automatically to this repo.
+Apply the migration, deploy the three onboarding Edge Functions with JWT verification enabled, then merge the reviewed PR to main to trigger the existing Netlify GitHub integration. Manual API publication currently needs the saved Netlify token refreshed (HTTP 401 on 2026-10-15). Include public/_redirects and public/_headers in the build. Keep GitHub/Lovable source synchronized; publishing an old Lovable build would restore stale client behavior.
 
-**Use your preferred IDE**
+Public applications are create-only via submit_restaurant_application. Existing submissions, child rows, revisions, the public-named legacy view, and staff RPCs require a verified allowlisted account with email OTP authentication. Public users cannot look up or overwrite a restaurant by name. Staff reconcile duplicates. The authorization check reads trusted account data, not editable user metadata.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Uploads permit new UUID-named files only (10 MB maximum with image/PDF MIME restrictions); visitors cannot list, replace, or delete them. Existing restaurant-images and restaurant-pdfs buckets remain public to preserve published marketing assets. Do not upload confidential documents. They contain website/menu materials, not private submission records.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Notification delivery requires a one-use capability returned to the creator, or staff authorization. Login sends are allowlisted and throttled. Both mail functions use onboarding@send.menu.ca, verified on the existing Resend account. Submission notifications retain the existing brian@worklocal.ca recipient; staff sign-in codes go only to the approved pureconcepts mailbox. RESEND_API_KEY and Supabase service keys stay in the Edge Function environment.
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/5435f92b-60b8-4414-8da8-eb6db3e48176) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Keep the previous Netlify deployment and DNS record as rollback evidence. Never restore anonymous read/update permissions as a rollback. If an application regression occurs, keep the database locked down and forward-fix or temporarily suspend intake. The old client cannot use the secured public save route.

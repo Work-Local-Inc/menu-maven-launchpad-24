@@ -45,7 +45,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
     <div className="space-y-6">
       <div className="text-center">
         <p className="text-muted-foreground">
-          Share your special offers and deals with customers. Add 2-5 deals to showcase what makes your restaurant special.
+          Share your special offers and deals with customers. Add any offers you would like on your website.
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
         <Card key={index} className="relative">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-lg">Deal #{index + 1}</CardTitle>
-            {data.length > 2 && (
+            {data.length > 0 && (
               <Button
                 type="button"
                 variant="ghost"
@@ -68,7 +68,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor={`deal-title-${index}`} className="text-base font-medium">
-                Deal Title *
+                Deal Title
               </Label>
               <Input
                 id={`deal-title-${index}`}
@@ -81,7 +81,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
 
             <div>
               <Label htmlFor={`deal-description-${index}`} className="text-base font-medium">
-                Description *
+                Description
               </Label>
               <Textarea
                 id={`deal-description-${index}`}
@@ -124,7 +124,7 @@ export function DealsForm({ data, onChange }: DealsFormProps) {
 
       {data.length < 2 && (
         <div className="text-center text-sm text-muted-foreground">
-          Add at least 2 deals to continue
+          No deals to add? You can skip this step.
         </div>
       )}
     </div>

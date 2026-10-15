@@ -45,11 +45,13 @@ export const useFileUpload = () => {
   const uploadFile = async (file: File, bucket: string, path?: string, isLogo: boolean = false): Promise<string> => {
     setUploading(true);
     try {
+      if (file.size > 10 * 1024 * 1024) throw new Error('Files must be 10 MB or smaller.');
       // Optimize image before upload if it's an image file
       const optimizedFile = await optimizeImage(file, isLogo);
       
       const fileExt = optimizedFile.name.split('.').pop();
-      const fileName = path || `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const folder = path?.split('/')[0] || 'uploads';
+      const fileName = `${folder}/${crypto.randomUUID()}.${fileExt}`;
       
       const { data, error } = await supabase.storage
         .from(bucket)

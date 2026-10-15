@@ -1,3 +1,4 @@
+import { useStaffAccess } from "@/components/StaffAccess";
 import { useState } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -150,6 +151,7 @@ const steps = [
 ];
 
 export default function RestaurantOnboarding() {
+  const { allowed: isStaff } = useStaffAccess();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [formData, setFormData] = useState<RestaurantData>(initialData);
@@ -183,6 +185,7 @@ export default function RestaurantOnboarding() {
     markStepCompleted(currentStep);
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
     } else {
       checkDuplicateAndSubmit();
     }
@@ -190,7 +193,7 @@ export default function RestaurantOnboarding() {
 
   const checkDuplicateAndSubmit = async () => {
     const name = formData.businessInfo.name.trim();
-    if (name) {
+    if (name && isStaff) {
       const { data } = await supabase
         .from('restaurant_submissions')
         .select('id, restaurant_name, created_at')
@@ -316,7 +319,7 @@ export default function RestaurantOnboarding() {
           instagram: formData.social.instagram,
           facebook: formData.social.facebook,
           twitter: formData.social.twitter,
-          comments: formData.social.comments,
+          comments: [formData.social.comments, formData.fonts.titleFont && `Preferred heading font: ${formData.fonts.titleFont}`, formData.fonts.paragraphFont && `Preferred body font: ${formData.fonts.paragraphFont}`].filter(Boolean).join('\n'),
       };
 
       const lists: Record<string, any[]> = {
@@ -367,18 +370,23 @@ export default function RestaurantOnboarding() {
         listsToSave = lists;
       }
 
-      // One database transaction: either everything is saved (with a revision snapshot) or nothing changes
-      const { data: savedId, error: saveError } = await (supabase as any).rpc('save_restaurant_submission', {
-        p_id: existingId || null, p_fields: fields, p_lists: listsToSave, p_source: 'onboarding',
-      });
+      // Public visitors can only create a new application. Reads and updates require staff access.
+      const { data: saved, error: saveError } = isStaff
+        ? await (supabase as any).rpc('save_restaurant_submission', {
+            p_id: existingId || null, p_fields: fields, p_lists: listsToSave, p_source: 'onboarding',
+          })
+        : await (supabase as any).rpc('submit_restaurant_application', {
+            p_fields: fields, p_lists: listsToSave,
+          });
       if (saveError) throw saveError;
-      const submission = { id: savedId as string };
+      const submission = isStaff ? { id: saved as string, notification_token: undefined } : saved as { id: string; notification_token: string };
 
       // Send email notification in the background (don't block success)
       try {
-        await supabase.functions.invoke('send-submission-notification', {
-          body: { submissionId: submission.id }
+        const { error } = await supabase.functions.invoke('send-submission-notification', {
+          body: { submissionId: submission.id, notificationToken: submission.notification_token }
         });
+        if (error) throw error;
         console.log('Email notification sent successfully');
       } catch (emailError) {
         console.error('Email notification failed (non-blocking):', emailError);
@@ -492,7 +500,7 @@ export default function RestaurantOnboarding() {
           />
         );
       case 10:
-        return <ReviewStep data={formData} onEdit={setCurrentStep} onRemovalsChange={(r) => updateFormData('removals', r)} />;
+        return <ReviewStep data={formData} onEdit={setCurrentStep} onRemovalsChange={isStaff ? (r) => updateFormData('removals', r) : undefined} />;
       default:
         return null;
     }
@@ -509,7 +517,7 @@ export default function RestaurantOnboarding() {
         <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
           <img src={menuLogo} alt="Menu.ca" className="w-48 h-auto mb-4 p-4 bg-white rounded-lg" />
           <p className="text-lg opacity-90">
-            Tell us about your restaurant and share your story
+            Let’s get your restaurant website started
           </p>
         </div>
       </div>
@@ -537,7 +545,7 @@ export default function RestaurantOnboarding() {
               <div className="flex justify-between p-3 font-medium"><span>Files received</span><span>{receipt.files}</span></div>
             </div>
             <div className="flex flex-wrap gap-3 justify-center mt-6 print:hidden">
-              <Button asChild><Link to={`/admin/submission/${receipt.id}`}><Pencil className="w-4 h-4 mr-2" />Edit this submission</Link></Button>
+              {isStaff && <Button asChild><Link to={`/admin/submission/${receipt.id}`}><Pencil className="w-4 h-4 mr-2" />Edit this submission</Link></Button>}
               <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print receipt</Button>
               <Button variant="ghost" onClick={() => setReceipt(null)}>Start another</Button>
             </div>
@@ -545,6 +553,7 @@ export default function RestaurantOnboarding() {
         </div>
       ) : (
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <p className="rounded-lg border bg-card p-4 text-sm">Every question is optional. Share what you have and skip the rest. If you already have a website or online menu, add the link and we can use it as a starting point.</p>
         <ProgressIndicator
           steps={steps}
           currentStep={currentStep}

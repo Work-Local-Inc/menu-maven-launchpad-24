@@ -1,3 +1,3 @@
-
-- Onboarding re-submissions for an existing restaurant name update that one record (blank fields keep old values, child lists replaced only when provided) — keeps one record per restaurant.
-- FAQs live in the restaurant_faqs table, not in comments — so the builder gets structured data.
+- Public onboarding always creates a new submission. Never expose name-based lookup or overwrite to visitors. Only approved staff can reconcile duplicates or edit records; blank staff fields preserve old values and child lists are replaced only when provided.
+- FAQs live in restaurant_faqs, not comments.
+- Keep every public form field optional. Staff authentication is separate.
