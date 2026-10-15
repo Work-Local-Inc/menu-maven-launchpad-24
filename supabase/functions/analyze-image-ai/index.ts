@@ -1,3 +1,4 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -13,6 +14,11 @@ serve(async (req) => {
   }
 
   try {
+    const caller = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: req.headers.get('Authorization') || '' } },
+    });
+    const { data: staff, error } = await caller.rpc('is_onboarding_staff');
+    if (error || staff !== true) return new Response('Not authorized', { status: 403, headers: corsHeaders });
     const { imageBase64, category, language } = await req.json();
     
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');

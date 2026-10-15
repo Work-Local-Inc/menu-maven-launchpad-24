@@ -110,7 +110,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Category *</Label>
+                  <Label className="text-sm font-medium">Category</Label>
                   <Select 
                     value={menu.category} 
                     onValueChange={(value: 'breakfast' | 'lunch' | 'dinner' | 'custom') => 
@@ -130,7 +130,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Menu Name *</Label>
+                  <Label className="text-sm font-medium">Menu Name</Label>
                   <Input
                     value={menu.name}
                     onChange={(e) => updateMenu(index, { name: e.target.value })}
@@ -142,7 +142,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
 
               {menu.category === 'custom' && (
                 <div>
-                  <Label className="text-sm font-medium">Custom Category Name *</Label>
+                  <Label className="text-sm font-medium">Custom Category Name</Label>
                   <Input
                     value={menu.customCategoryName || ''}
                     onChange={(e) => updateMenu(index, { customCategoryName: e.target.value })}
@@ -153,7 +153,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
               )}
               
               <div>
-                <Label className="text-sm font-medium">Menu File *</Label>
+                <Label className="text-sm font-medium">Menu File</Label>
                 
                 {!menu.file ? (
                   <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6 text-center">
@@ -229,7 +229,7 @@ export function MenuUploadForm({ data, onChange }: MenuUploadFormProps) {
         <h4 className="font-medium mb-2">Menu Tips:</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Make sure your PDFs are high quality and readable</li>
-          <li>• Include prices if you'd like them displayed</li>
+          <li>• A current menu with prices and options helps us build your online ordering menu</li>
           <li>• Keep file sizes under 10MB for fast loading</li>
           <li>• You can update your menus anytime after launch</li>
           <li>• Consider separate menus for different meal times</li>

@@ -10,7 +10,8 @@ interface ProgressIndicatorProps {
 export function ProgressIndicator({ steps, currentStep, completedSteps }: ProgressIndicatorProps) {
   return (
     <div className="w-full py-8">
-      <div className="flex items-center justify-between mb-2">
+      <p className="text-sm font-medium sm:hidden">Step {currentStep + 1} of {steps.length}: {steps[currentStep]}</p>
+      <div className="hidden sm:flex items-center justify-between mb-2">
         {steps.map((step, index) => (
           <div key={index} className="flex flex-col items-center">
             <div

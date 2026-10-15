@@ -24,7 +24,7 @@ export function DeliveryHoursForm({ data, onChange }: DeliveryHoursFormProps) {
     <div className="space-y-6">
       <div>
         <Label htmlFor="deliveryAreas" className="text-base font-medium">
-          Delivery Areas *
+          Delivery Areas
         </Label>
         <Textarea
           id="deliveryAreas"
@@ -56,7 +56,7 @@ export function DeliveryHoursForm({ data, onChange }: DeliveryHoursFormProps) {
 
       <div>
         <Label htmlFor="hours" className="text-base font-medium">
-          Hours of Operation *
+          Hours of Operation
         </Label>
         <Textarea
           id="hours"

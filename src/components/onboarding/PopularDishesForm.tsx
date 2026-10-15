@@ -47,7 +47,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
     <div className="space-y-6">
       <div className="text-center">
         <p className="text-muted-foreground">
-          Add 3-6 of your most popular dishes. These will be showcased prominently on your website.
+          Optionally add up to 6 of your most popular dishes. These will be showcased prominently on your website.
         </p>
       </div>
 
@@ -56,7 +56,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Dish #{index + 1}</CardTitle>
-              {data.length > 3 && (
+              {data.length > 0 && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -72,7 +72,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-base font-medium">
-                    Dish Name *
+                    Dish Name
                   </Label>
                   <Input
                     placeholder="e.g., Margherita Pizza"
@@ -84,7 +84,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
                 
                 <div>
                   <Label className="text-base font-medium">
-                    Dish Image *
+                    Dish Image
                   </Label>
                   <p className="text-sm text-muted-foreground mb-2">4:3 aspect ratio • 800×600px or larger • JPG/PNG</p>
                   <div className="mt-2">
@@ -101,7 +101,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
 
               <div>
                 <Label className="text-base font-medium">
-                  Description *
+                  Description
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
                   Recommended: 80 to 90 characters. Maximum: 105 characters. Anything over 105 characters may be cut off on mobile.
@@ -135,7 +135,7 @@ export function PopularDishesForm({ data, onChange }: PopularDishesFormProps) {
       {data.length < 3 && (
         <div className="bg-accent/50 border border-accent rounded-lg p-4">
           <p className="text-sm text-center">
-            Please add at least 3 popular dishes to showcase on your website.
+            You can skip this step. We can choose featured dishes from your menu.
           </p>
         </div>
       )}

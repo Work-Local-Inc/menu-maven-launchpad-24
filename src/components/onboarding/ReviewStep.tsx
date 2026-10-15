@@ -23,10 +23,10 @@ export function getMissingItems(d: RestaurantData) {
   if (!d.about.story) m.push({ label: "Restaurant story", step: 1 });
   d.popularDishes.forEach((x, i) => { if (!x.image) m.push({ label: `Photo for dish "${x.name || i + 1}"`, step: 2 }); });
   d.deals.forEach((x, i) => { if (!x.image) m.push({ label: `Image for deal "${x.title || i + 1}"`, step: 3 }); });
-  if (!d.menus.some((x) => x.file)) m.push({ label: "At least one menu file", step: 4 });
+  if (!d.menus.some((x) => x.file)) m.push({ label: "Menu file (optional)", step: 4 });
   d.menus.forEach((x, i) => { if (!x.file) m.push({ label: `File for menu "${x.name || i + 1}"`, step: 4 }); });
   if (!d.deliveryHours.hours) m.push({ label: "Opening hours", step: 5 });
-  if (d.photos.length < 3) m.push({ label: `Gallery photos (${d.photos.length}/3 minimum)`, step: 6 });
+  if (d.photos.length < 3) m.push({ label: `Gallery photos (optional)`, step: 6 });
   d.faqs.forEach((x, i) => { if (!x.question || !x.answer) m.push({ label: `FAQ #${i + 1} is incomplete`, step: 8 }); });
   return m;
 }
@@ -48,14 +48,14 @@ function Section({ title, step, onEdit, children }: { title: string; step: numbe
 const Row = ({ k, v }: { k: string; v?: string | null }) => (
   <div className="grid grid-cols-3 gap-2">
     <span className="text-muted-foreground">{k}</span>
-    <span className="col-span-2 break-words">{v ? v : <span className="text-destructive">Not provided</span>}</span>
+    <span className="col-span-2 break-words">{v ? v : <span className="text-muted-foreground">Not provided</span>}</span>
   </div>
 );
 
 const FileRow = ({ k, f, fit }: { k: string; f: File | null; fit?: string }) => (
   <div className="grid grid-cols-3 gap-2 items-center">
     <span className="text-muted-foreground">{k}</span>
-    <span className="col-span-2 flex items-center gap-2">
+    <span className="col-span-2 min-w-0 flex flex-wrap items-center gap-2">
       {f ? (
         <>
           {f.type.startsWith("image/") ? (
@@ -69,7 +69,7 @@ const FileRow = ({ k, f, fit }: { k: string; f: File | null; fit?: string }) => 
           )}
         </>
       ) : (
-        <span className="text-destructive">No file</span>
+        <span className="text-muted-foreground">No file</span>
       )}
     </span>
   </div>
@@ -117,9 +117,9 @@ export function ReviewStep({ data, onEdit, onRemovalsChange }: ReviewStepProps) 
       </p>
 
       {missing.length > 0 ? (
-        <Card className="p-4 border-destructive/40 bg-destructive/5">
+        <Card className="p-4 border-border bg-muted/30">
           <div className="flex items-center gap-2 font-medium mb-2">
-            <AlertTriangle className="w-4 h-4 text-destructive" /> {missing.length} thing{missing.length === 1 ? "" : "s"} missing
+            <AlertTriangle className="w-4 h-4 text-muted-foreground" /> {missing.length} optional detail{missing.length === 1 ? "" : "s"} left blank
           </div>
           <ul className="text-sm space-y-1">
             {missing.map((m, i) => (
@@ -130,7 +130,7 @@ export function ReviewStep({ data, onEdit, onRemovalsChange }: ReviewStepProps) 
               </li>
             ))}
           </ul>
-          <p className="text-xs text-muted-foreground mt-2">You can still submit, but the builder may have to come back to you.</p>
+          <p className="text-xs text-muted-foreground mt-2">Everything is optional. Send what you have; we can fill in the rest together.</p>
         </Card>
       ) : (
         <Card className="p-4 border-primary/40 bg-primary/5 flex items-center gap-2 text-sm font-medium">
@@ -195,8 +195,8 @@ export function ReviewStep({ data, onEdit, onRemovalsChange }: ReviewStepProps) 
         {data.faqs.length === 0 && <p className="text-muted-foreground">None added</p>}
         {data.faqs.map((f, i) => (
           <div key={i}>
-            <p className="font-medium">{f.question || <span className="text-destructive">Missing question</span>}</p>
-            <p className="text-muted-foreground">{f.answer || <span className="text-destructive">Missing answer</span>}</p>
+            <p className="font-medium">{f.question || <span className="text-muted-foreground">Missing question</span>}</p>
+            <p className="text-muted-foreground">{f.answer || <span className="text-muted-foreground">Missing answer</span>}</p>
           </div>
         ))}
       </Section>

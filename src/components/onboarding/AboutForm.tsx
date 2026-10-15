@@ -72,7 +72,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label htmlFor="foundedYear" className="text-base font-medium">
-            Year Founded *
+            Year Founded
           </Label>
           <Input
             id="foundedYear"
@@ -86,7 +86,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
 
       <div>
         <Label htmlFor="story" className="text-base font-medium">
-          Restaurant Story *
+          Restaurant Story
         </Label>
         <Textarea
           id="story"
@@ -118,7 +118,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
 
       <div>
         <Label className="text-base font-medium">
-          About Section Image *
+          About Section Image
         </Label>
         <p className="text-sm text-muted-foreground mb-2">Portrait or landscape • 800×1200px (portrait) or 1200×800px (landscape) • JPG/PNG</p>
         <div className="mt-2">
@@ -174,7 +174,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor={`section-title-${section.id}`} className="text-sm font-medium">
-                    Section Title *
+                    Section Title
                   </Label>
                   <Input
                     id={`section-title-${section.id}`}
@@ -209,7 +209,7 @@ export function AboutForm({ data, onChange }: AboutFormProps) {
 
               <div>
                 <Label htmlFor={`section-description-${section.id}`} className="text-sm font-medium">
-                  Description *
+                  Description
                 </Label>
                 <Textarea
                   id={`section-description-${section.id}`}

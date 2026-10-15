@@ -19,7 +19,7 @@ const Index = () => {
         <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-4">
           <img src={menuLogo} alt="Menu.ca" className="w-64 h-auto mb-8 p-4 bg-white rounded-lg" />
           <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-            Join our restaurant directory and tell us about your business
+            Get your restaurant website started with Menu Connect
           </p>
           <Button 
             size="lg" 
@@ -37,10 +37,10 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Connect Your Restaurant with Our Community
+              Your new restaurant website starts here
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Share your restaurant's story, menu, and details to join our growing directory
+              Share what you have. Every field is optional, and you can skip any step.
             </p>
           </div>
 
@@ -48,9 +48,9 @@ const Index = () => {
             <Card className="text-center p-6">
               <CardContent className="pt-6">
                 <Clock className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Simple Survey</h3>
+                <h3 className="text-xl font-semibold mb-2">Share what you have</h3>
                 <p className="text-muted-foreground">
-                  Tell us about your restaurant in 10-15 minutes with our easy form
+                  Add your website link, menu, photos, or business details. Leave anything else blank.
                 </p>
               </CardContent>
             </Card>
@@ -58,9 +58,9 @@ const Index = () => {
             <Card className="text-center p-6">
               <CardContent className="pt-6">
                 <Star className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Professional Listing</h3>
+                <h3 className="text-xl font-semibold mb-2">We build your draft</h3>
                 <p className="text-muted-foreground">
-                  Your restaurant information organized and presented beautifully
+                  We use your information to prepare your website and online menu.
                 </p>
               </CardContent>
             </Card>
@@ -68,9 +68,9 @@ const Index = () => {
             <Card className="text-center p-6">
               <CardContent className="pt-6">
                 <Users className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Get Discovered</h3>
+                <h3 className="text-xl font-semibold mb-2">Review together</h3>
                 <p className="text-muted-foreground">
-                  Join our directory and connect with customers looking for great food
+                  We send you the draft to review and make changes before launch.
                 </p>
               </CardContent>
             </Card>
@@ -82,10 +82,10 @@ const Index = () => {
       <div className="gradient-warm py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Join Our Directory?
+            Ready to get started?
           </h2>
           <p className="text-xl mb-8">
-            Share your restaurant's story and connect with food lovers in your area
+            A website link and your latest menu are a useful starting point. Nothing is required.
           </p>
           <Button 
             size="lg" 

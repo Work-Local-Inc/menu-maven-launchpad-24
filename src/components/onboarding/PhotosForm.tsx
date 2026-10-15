@@ -11,14 +11,14 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
     <div className="space-y-6">
       <div className="text-center">
         <p className="text-muted-foreground">
-          Upload 3-10 high-quality photos of your restaurant, food, and atmosphere. 
+          Optionally upload up to 10 photos of your restaurant, food, and atmosphere.
           These will be displayed throughout your website.
         </p>
       </div>
 
       <div>
         <Label className="text-base font-medium">
-          Restaurant Photos * (3-10 images)
+          Restaurant Photos (up to 10 images)
         </Label>
         <p className="text-sm text-muted-foreground mb-2">4:3 aspect ratio • 800×600px or larger • JPG/PNG</p>
         <div className="mt-2">
@@ -35,7 +35,7 @@ export function PhotosForm({ data, onChange }: PhotosFormProps) {
       {data.length < 3 && (
         <div className="bg-accent/50 border border-accent rounded-lg p-4">
           <p className="text-sm text-center">
-            Please upload at least 3 photos to showcase your restaurant.
+            No photos handy? You can skip this step.
           </p>
         </div>
       )}
